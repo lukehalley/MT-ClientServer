@@ -31,12 +31,12 @@ public class Client extends JFrame {
 		getContentPane().add(p);
 
 		enteredStudentNumber = new JTextField();
-		enteredStudentNumber.setBounds(78, 11, 95, 20);
+		enteredStudentNumber.setBounds(82, 11, 183, 20);
 		getContentPane().add(enteredStudentNumber);
 		enteredStudentNumber.setColumns(10);
 
 		JLabel lblStudentId = new JLabel("Student ID:");
-		lblStudentId.setBounds(10, 14, 58, 14);
+		lblStudentId.setBounds(10, 14, 112, 14);
 		getContentPane().add(lblStudentId);
 
 		JSeparator separator = new JSeparator();
@@ -44,23 +44,24 @@ public class Client extends JFrame {
 		getContentPane().add(separator);
 
 		JButton btnLogin = new JButton("Login");
-		btnLogin.setBounds(183, 10, 95, 23);
+		btnLogin.setBounds(275, 11, 95, 23);
 		getContentPane().add(btnLogin);
 
 		JTextArea statusView = new JTextArea();
-		statusView.setBounds(10, 79, 414, 171);
+		statusView.setBounds(10, 79, 464, 171);
+		statusView.setEditable(false);
 		getContentPane().add(statusView);
 
-		JLabel lblStatus = new JLabel("Status:");
-		lblStatus.setBounds(10, 54, 46, 14);
+		JLabel lblStatus = new JLabel("Status: Logged Out");
+		lblStatus.setBounds(10, 54, 464, 14);
 		getContentPane().add(lblStatus);
 		
 		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(329, 11, 95, 23);
+		btnExit.setBounds(379, 11, 95, 23);
 		getContentPane().add(btnExit);
 
 		setTitle("Client");
-		setSize(450, 300);
+		setSize(500, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
@@ -101,9 +102,10 @@ public class Client extends JFrame {
 
 						// Tell the user if they are logged in or not
 						if (loginStatus) {
-							statusView.append("Welcome " + userName + " you are now logged in " + '\n');
+							statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
+							lblStatus.setText("Status: Logged In");
 						} else {
-							statusView.append("Log in failed please try again " + '\n');
+							statusView.append("Student number not found! Log in failed - please try again." + '\n');
 						}
 
 					} catch (IOException ex) {

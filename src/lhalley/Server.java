@@ -16,8 +16,6 @@ import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class Server extends JFrame {
-	// Text area for displaying contents
-	private JTextArea jta = new JTextArea();
 
 	// DB configurations
 	private final String userName = "root";
@@ -32,28 +30,47 @@ public class Server extends JFrame {
 	}
 
 	public Server() {
-		// Place text area on the frame
-		getContentPane().setLayout(new BorderLayout());
-		JScrollPane scrollPane = new JScrollPane(jta);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-		JButton btnExit = new JButton("Exit");
-		scrollPane.setRowHeaderView(btnExit);
-
-		JButton btnSend = new JButton("Send Message Back To Client");
-		scrollPane.setColumnHeaderView(btnSend);
-
+		getContentPane().setLayout(null);
+		// Panel p to hold the label and text field
+		JPanel p = new JPanel();
+		p.setBounds(0, 0, 484, 0);
+		p.setLayout(new BorderLayout());
+		getContentPane().add(p);
+		
+		JTextArea serverStatus = new JTextArea();
+		serverStatus.setBounds(10, 11, 370, 239);
+		serverStatus.setEditable(false);
+		getContentPane().add(serverStatus);
+		
+		JTextPane clientTitle = new JTextPane();
+		clientTitle.setText("WIT Student Login");
+		clientTitle.setEditable(false);
+		clientTitle.setBounds(390, 11, 284, 20);
+		getContentPane().add(clientTitle);
+		
+		JLabel currentStudentNumberLabel = new JLabel("Student ID");
+		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
+		getContentPane().add(currentStudentNumberLabel);
+		
+		JTextPane currentStudentNumber = new JTextPane();
+		currentStudentNumber.setEditable(false);
+		currentStudentNumber.setBounds(390, 73, 284, 20);
+		getContentPane().add(currentStudentNumber);
+		
+		JLabel currentStudentNameLabel = new JLabel("Student Name");
+		currentStudentNameLabel.setBounds(390, 104, 284, 20);
+		getContentPane().add(currentStudentNameLabel);
+		
+		JTextPane currentStudentName = new JTextPane();
+		currentStudentName.setEditable(false);
+		currentStudentName.setBounds(390, 135, 284, 20);
+		getContentPane().add(currentStudentName);
+		
 		setTitle("Server");
-		setSize(500, 300);
+		setSize(700, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true); // It is necessary to show the frame here!
-
-		btnExit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
+		setVisible(true);
 		
 		// Loading all the student id's in
 		try {
@@ -80,7 +97,6 @@ public class Server extends JFrame {
 			try {
 				// Create a server socket
 				ServerSocket serverSocket = new ServerSocket(8000);
-				jta.append("Server started at " + new Date() + '\n');
 
 				// Listen for a connection request
 				Socket socket = serverSocket.accept();
@@ -105,28 +121,28 @@ public class Server extends JFrame {
 					String customerSTUDID = r.getString("STUD_ID");
 					String customerFNAME = r.getString("FNAME");
 					String customerSNAME = r.getString("SNAME");
-					
-					System.out.println(customerSID + " " + customerSTUDID + " " + customerFNAME + " " + customerSNAME );
+					String customerNAME = customerFNAME + " " + customerSNAME;
 					
 					// Compute area
 					boolean loginStatus;
-
+					serverStatus.append("Student number received from client: " + recievedStudentNum + '\n');
+					
 					if (ids.contains(sn)) {
 						loginStatus = true;
+						serverStatus.append("Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+						currentStudentNumber.setText(customerSTUDID);
+						currentStudentName.setText(customerNAME);
+						try {
+							outputToClient.writeBoolean(loginStatus);
+							outputToClient.writeUTF(customerNAME);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						} 
 					} else {
 						loginStatus = false;
+						serverStatus.append("Student does NOT exsist in database, login unsucessfull" + '\n');
 					}
-					
-					try {
-						outputToClient.writeBoolean(loginStatus);
-						outputToClient.writeUTF(customerFNAME + " " + customerSNAME);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} 
-					
-					jta.append("Student number received from client: " + recievedStudentNum + '\n');
-					jta.append("The user is now logged in: " + loginStatus + '\n');
-
+				
 				}
 			} catch (IOException ex) {
 				System.err.println(ex);
