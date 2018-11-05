@@ -71,8 +71,6 @@ public class Server extends JFrame {
 			statement = dbConnection.createStatement();
 			ResultSet rs = statement.executeQuery(getAllStudentIDs);
 
-			System.out.println("Connected!");
-			
 			ArrayList<String> ids = new ArrayList<String>();
 			
 			while (rs.next()) { 
@@ -96,6 +94,19 @@ public class Server extends JFrame {
 					int recievedStudentNum = inputFromClient.readInt();
 					
 					String sn = Integer.toString(recievedStudentNum);
+					
+					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+					
+					System.out.println(getUserByStNum);
+					
+					ResultSet r = statement.executeQuery(getUserByStNum);
+					r.next();
+					String customerSID = r.getString("SID");
+					String customerSTUDID = r.getString("STUD_ID");
+					String customerFNAME = r.getString("FNAME");
+					String customerSNAME = r.getString("SNAME");
+					
+					System.out.println(customerSID + " " + customerSTUDID + " " + customerFNAME + " " + customerSNAME );
 					
 					// Compute area
 					boolean loginStatus;
