@@ -31,7 +31,6 @@ public class Server extends JFrame {
 		new Server();
 	}
 
-	@SuppressWarnings("resource")
 	public Server() {
 		// Place text area on the frame
 		getContentPane().setLayout(new BorderLayout());
@@ -78,9 +77,48 @@ public class Server extends JFrame {
 			
 			while (rs.next()) { 
 				ids.add(rs.getString(2));
+			}		
+
+			try {
+				// Create a server socket
+				ServerSocket serverSocket = new ServerSocket(8000);
+				jta.append("Server started at " + new Date() + '\n');
+
+				// Listen for a connection request
+				Socket socket = serverSocket.accept();
+
+				// Create data input and output streams
+				DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
+				DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
+
+				while (true) {
+					// Receive radius from the client
+					int recievedStudentNum = inputFromClient.readInt();
+					
+					String sn = Integer.toString(recievedStudentNum);
+					
+					// Compute area
+					boolean loginStatus;
+
+					if (ids.contains(sn)) {
+						loginStatus = true;
+					} else {
+						loginStatus = false;
+					}
+					
+					try {
+						outputToClient.writeBoolean(loginStatus);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} 
+					
+					jta.append("Student number received from client: " + recievedStudentNum + '\n');
+					jta.append("The user is now logged in: " + loginStatus + '\n');
+
+				}
+			} catch (IOException ex) {
+				System.err.println(ex);
 			}
-			
-			System.out.println(ids);
 			
 
 		} catch (SQLException e) {
@@ -91,40 +129,7 @@ public class Server extends JFrame {
 			System.err.println("Data could not be initialized! Error: " + e.getMessage());
 
 		}
-
-		try {
-			// Create a server socket
-			ServerSocket serverSocket = new ServerSocket(8000);
-			jta.append("Server started at " + new Date() + '\n');
-
-			// Listen for a connection request
-			Socket socket = serverSocket.accept();
-
-			// Create data input and output streams
-			DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
-			DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
-
-			while (true) {
-				// Receive radius from the client
-				int recievedStudentNum = inputFromClient.readInt();
-
-				// Compute area
-				boolean loginStatus = true;
-
-				try {
-					outputToClient.writeBoolean(loginStatus);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-
-				jta.append("Student number received from client: " + recievedStudentNum + '\n');
-				jta.append("The user is now logged in: " + loginStatus + '\n');
-
-			}
-		} catch (IOException ex) {
-			System.err.println(ex);
-		}
-
+		
 	}
 
 	// Function which is used to get a connection to the database
