@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.awt.*;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -25,7 +26,7 @@ public class Server extends JFrame {
 	private final String serverName = "localhost";
 	private final int portNumber = 3306;
 	private final String dbName = "wit";
-	private final String usrTbl = "students";
+	private final String studentTable = "students";
 
 	public static void main(String[] args) {
 		new Server();
@@ -64,21 +65,29 @@ public class Server extends JFrame {
 			Statement statement = null;
 
 			// TODO: Get all student IDs
-			String getAllStudentIDs = "SELECT * FROM " + usrTbl + " ORDER BY id LIMIT 1 OFFSET ";
+			String getAllStudentIDs = "SELECT * FROM " + studentTable;
 
 			// Getting the connection
 			dbConnection = getConnection();
 			// Begin creation of the db statement before executing command
 			statement = dbConnection.createStatement();
+			ResultSet rs = statement.executeQuery(getAllStudentIDs);
 
 			System.out.println("Connected!");
+			
+			ArrayList<String> ids = new ArrayList<String>();
+			
+			while (rs.next()) { 
+				ids.add(rs.getString(2));
+			}
+			
+			System.out.println(ids);
 
 		} catch (SQLException e) {
 			// Catch any errors and display them in a pop on the users screen aswell as in
 			// the console
 			final JPanel panel = new JPanel();
-			JOptionPane.showMessageDialog(panel, "Data could not be initialized! Error: " + e.getMessage(),
-					"Initialization Error!", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(panel, "Data could not be initialized! Error: " + e.getMessage(),"Initialization Error!", JOptionPane.ERROR_MESSAGE);
 			System.err.println("Data could not be initialized! Error: " + e.getMessage());
 
 		}
