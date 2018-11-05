@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.awt.*;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -64,7 +63,7 @@ public class Server extends JFrame {
 			// Init of statement object
 			Statement statement = null;
 
-			// TODO: Get all student IDs
+			// Get all student IDs
 			String getAllStudentIDs = "SELECT * FROM " + studentTable;
 
 			// Getting the connection
@@ -82,6 +81,7 @@ public class Server extends JFrame {
 			}
 			
 			System.out.println(ids);
+			
 
 		} catch (SQLException e) {
 			// Catch any errors and display them in a pop on the users screen aswell as in
@@ -106,25 +106,19 @@ public class Server extends JFrame {
 
 			while (true) {
 				// Receive radius from the client
-				double radius = inputFromClient.readDouble();
+				int recievedStudentNum = inputFromClient.readInt();
 
 				// Compute area
-				double area = radius * radius * Math.PI;
+				boolean loginStatus = true;
 
-				btnSend.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						// Send area back to the client
-						try {
-							outputToClient.writeDouble(area);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
+				try {
+					outputToClient.writeBoolean(loginStatus);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 
-						jta.append("Radius received from client: " + radius + '\n');
-						jta.append("Area found: " + area + '\n');
-					}
-				});
+				jta.append("Student number received from client: " + recievedStudentNum + '\n');
+				jta.append("The user is now logged in: " + loginStatus + '\n');
 
 			}
 		} catch (IOException ex) {
