@@ -119,6 +119,7 @@ public class Server extends JFrame {
 					
 					try {
 						outputToClient.writeBoolean(loginStatus);
+						outputToClient.writeUTF(customerFNAME + " " + customerSNAME);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} 

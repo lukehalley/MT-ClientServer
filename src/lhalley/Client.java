@@ -88,7 +88,7 @@ public class Client extends JFrame {
 						// Get the radius from the text field
 						int sentStudentNumber = Integer.parseInt(enteredStudentNumber.getText().trim());
 
-						statusView.append("Checking if: " + sentStudentNumber + " is a valid and exsisting student number \n");
+						statusView.append("Checking if: " + sentStudentNumber + " is a valid and exsisting student number... \n");
 						
 						// Send the radius to the server
 						toServer.writeInt(sentStudentNumber);
@@ -96,10 +96,12 @@ public class Client extends JFrame {
 
 						// Get the log in status from the server
 						Boolean loginStatus = fromServer.readBoolean();
+						
+						String userName = fromServer.readUTF();
 
 						// Tell the user if they are logged in or not
 						if (loginStatus) {
-							statusView.append("Welcome USER NAME you are now logged in " + '\n');
+							statusView.append("Welcome " + userName + " you are now logged in " + '\n');
 						} else {
 							statusView.append("Log in failed please try again " + '\n');
 						}
