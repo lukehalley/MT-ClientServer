@@ -14,14 +14,7 @@ import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class ServerThread extends JFrame {
-
-	public static void main(String[] args) {
-		System.out.print("TEST");
-		new ServerThread();
-		new Connect();
-	}
 	
-
 	JTextArea serverStatus;
 	JTextPane clientTitle;
 	JLabel currentStudentNumberLabel;
@@ -38,10 +31,10 @@ public class ServerThread extends JFrame {
 		p.setLayout(new BorderLayout());
 		getContentPane().add(p);
 
-		JTextArea serverStatus = new JTextArea();
-		serverStatus.setBounds(10, 11, 370, 239);
-		serverStatus.setEditable(false);
-		getContentPane().add(serverStatus);
+//		JTextArea serverStatus = new JTextArea();
+//		serverStatus.setBounds(10, 11, 370, 239);
+//		serverStatus.setEditable(false);
+//		getContentPane().add(serverStatus);
 
 		JTextPane clientTitle = new JTextPane();
 		clientTitle.setText("WIT Student Login");
@@ -53,19 +46,14 @@ public class ServerThread extends JFrame {
 		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
 		getContentPane().add(currentStudentNumberLabel);
 
-		JTextPane currentStudentNumber = new JTextPane();
-		currentStudentNumber.setEditable(false);
-		currentStudentNumber.setBounds(390, 73, 284, 20);
-		getContentPane().add(currentStudentNumber);
-
 		JLabel currentStudentNameLabel = new JLabel("Student Name");
 		currentStudentNameLabel.setBounds(390, 104, 284, 20);
 		getContentPane().add(currentStudentNameLabel);
 
-		JTextPane currentStudentName = new JTextPane();
-		currentStudentName.setEditable(false);
-		currentStudentName.setBounds(390, 135, 284, 20);
-		getContentPane().add(currentStudentName);
+//		JTextPane currentStudentName = new JTextPane();
+//		currentStudentName.setEditable(false);
+//		currentStudentName.setBounds(390, 135, 284, 20);
+//		getContentPane().add(currentStudentName);
 
 		setTitle("Server");
 		setSize(700, 300);
@@ -121,11 +109,15 @@ public class ServerThread extends JFrame {
 	public void setCurrentStudentName(JTextPane currentStudentName) {
 		this.currentStudentName = currentStudentName;
 	}
-
+	
+	public static void main(String[] args) {
+		Connect c = new Connect();
+		c.run();
+	}
 
 }
 
-class Connect extends Thread {
+class Connect extends JPanel {
 
 	public final String userName = "root";
 	public final String password = "";
@@ -153,6 +145,7 @@ class Connect extends Thread {
 
 		try {
 			ServerThread panel = new ServerThread();
+			System.out.println(panel);
 			// Init of connection object
 			Connection dbConnection = null;
 			// Init of statement object
@@ -183,13 +176,27 @@ class Connect extends Thread {
 				// Create data input and output streams
 				DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
 				DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
-
+				
+				JTextArea serverStatus = new JTextArea();
+				serverStatus.setBounds(10, 11, 370, 239);
+				serverStatus.setEditable(false);
+				panel.setServerStatus(serverStatus);
+				
+				JTextPane currentStudentNumber = new JTextPane();
+				currentStudentNumber.setEditable(false);
+				currentStudentNumber.setBounds(390, 73, 284, 20);
+				panel.setCurrentStudentNumber(currentStudentNumber);
+				
+				JTextPane currentStudentName = new JTextPane();
+				currentStudentName.setEditable(false);
+				currentStudentName.setBounds(390, 135, 284, 20);
+				panel.setCurrentStudentName(currentStudentName);
+				
+				System.out.println(serverStatus);
+				System.out.println(currentStudentNumber);
+				System.out.println(currentStudentName);
+				
 				while (true) {
-
-					JTextArea serverStat = panel.getServerStatus();
-					JTextPane currStudNum = panel.getCurrentStudentNumber();
-					JTextPane clientTitle = panel.getClientTitle();
-					JTextPane currStudName = panel.getCurrentStudentName();
 
 					// Receive radius from the client
 					int recievedStudentNum = inputFromClient.readInt();
@@ -210,7 +217,11 @@ class Connect extends Thread {
 
 					// Compute area
 					boolean loginStatus;
-
+					
+					JTextArea serverStat = panel.getServerStatus();
+					JTextPane currStudName = panel.getCurrentStudentName();
+					JTextPane currStudNum = panel.getCurrentStudentNumber();
+					
 					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
 
 					if (ids.contains(sn)) {
