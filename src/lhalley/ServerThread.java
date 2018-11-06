@@ -13,21 +13,23 @@ import java.awt.*;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
-public class Server extends JFrame {
-
-	// DB configurations
-	private final String userName = "root";
-	private final String password = "";
-	private final String serverName = "localhost";
-	private final int portNumber = 3306;
-	private final String dbName = "wit";
-	private final String studentTable = "students";
+public class ServerThread extends JFrame {
 
 	public static void main(String[] args) {
-		new Server();
+		System.out.print("TEST");
+		new ServerThread();
+		new Connect();
 	}
+	
 
-	public Server() {
+	JTextArea serverStatus;
+	JTextPane clientTitle;
+	JLabel currentStudentNumberLabel;
+	JTextPane currentStudentNumber;
+	JLabel currentStudentNameLabel;
+	JTextPane currentStudentName;
+
+	public ServerThread() {
 
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
@@ -70,8 +72,87 @@ public class Server extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
+	}
+
+	public JTextArea getServerStatus() {
+		return serverStatus;
+	}
+
+	public void setServerStatus(JTextArea serverStatus) {
+		this.serverStatus = serverStatus;
+	}
+
+	public JTextPane getClientTitle() {
+		return clientTitle;
+	}
+
+	public void setClientTitle(JTextPane clientTitle) {
+		this.clientTitle = clientTitle;
+	}
+
+	public JLabel getCurrentStudentNumberLabel() {
+		return currentStudentNumberLabel;
+	}
+
+	public void setCurrentStudentNumberLabel(JLabel currentStudentNumberLabel) {
+		this.currentStudentNumberLabel = currentStudentNumberLabel;
+	}
+
+	public JTextPane getCurrentStudentNumber() {
+		return currentStudentNumber;
+	}
+
+	public void setCurrentStudentNumber(JTextPane currentStudentNumber) {
+		this.currentStudentNumber = currentStudentNumber;
+	}
+
+	public JLabel getCurrentStudentNameLabel() {
+		return currentStudentNameLabel;
+	}
+
+	public void setCurrentStudentNameLabel(JLabel currentStudentNameLabel) {
+		this.currentStudentNameLabel = currentStudentNameLabel;
+	}
+
+	public JTextPane getCurrentStudentName() {
+		return currentStudentName;
+	}
+
+	public void setCurrentStudentName(JTextPane currentStudentName) {
+		this.currentStudentName = currentStudentName;
+	}
+
+
+}
+
+class Connect extends Thread {
+
+	public final String userName = "root";
+	public final String password = "";
+	public final String serverName = "localhost";
+	public final int portNumber = 3306;
+	public final String dbName = "wit";
+	public String studentTable = "students";
+
+	// Function which is used to get a connection to the database
+	public Connection getConnection() throws SQLException {
+		Connection conn = null;
+		Properties connectionProps = new Properties();
+		// Setting credentials
+		connectionProps.put("user", this.userName);
+		connectionProps.put("password", this.password);
+		// Getting the connection using jdbc
+		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
+				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
+		return conn;
+	}
+
+	@SuppressWarnings("unused")
+	public void run() {
 		// Loading all the student id's in
+
 		try {
+			ServerThread panel = new ServerThread();
 			// Init of connection object
 			Connection dbConnection = null;
 			// Init of statement object
@@ -104,6 +185,12 @@ public class Server extends JFrame {
 				DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
 
 				while (true) {
+
+					JTextArea serverStat = panel.getServerStatus();
+					JTextPane currStudNum = panel.getCurrentStudentNumber();
+					JTextPane clientTitle = panel.getClientTitle();
+					JTextPane currStudName = panel.getCurrentStudentName();
+
 					// Receive radius from the client
 					int recievedStudentNum = inputFromClient.readInt();
 
@@ -123,14 +210,16 @@ public class Server extends JFrame {
 
 					// Compute area
 					boolean loginStatus;
-					serverStatus.append("Student number received from client: " + recievedStudentNum + '\n');
+
+					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
 
 					if (ids.contains(sn)) {
 						loginStatus = true;
-						serverStatus.append(
+						serverStat.append(
 								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-						currentStudentNumber.setText(customerSTUDID);
-						currentStudentName.setText(customerNAME);
+
+						currStudNum.setText(customerSTUDID);
+						currStudName.setText(customerNAME);
 						try {
 							outputToClient.writeBoolean(loginStatus);
 							outputToClient.writeUTF(customerNAME);
@@ -139,7 +228,7 @@ public class Server extends JFrame {
 						}
 					} else {
 						loginStatus = false;
-						serverStatus.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
 					}
 
 				}
@@ -159,16 +248,4 @@ public class Server extends JFrame {
 
 	}
 
-	// Function which is used to get a connection to the database
-	public Connection getConnection() throws SQLException {
-		Connection conn = null;
-		Properties connectionProps = new Properties();
-		// Setting credentials
-		connectionProps.put("user", this.userName);
-		connectionProps.put("password", this.password);
-		// Getting the connection using jdbc
-		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
-				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
-		return conn;
-	}
 }
