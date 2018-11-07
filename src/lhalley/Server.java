@@ -12,7 +12,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-public class ServerThread extends Thread {
+public class Server extends Thread {
 	
 	public static void main(String[] args) {
 		Connect c = new Connect();
