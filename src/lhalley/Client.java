@@ -64,6 +64,7 @@ public class Client extends JFrame {
 		setSize(534, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		setResizable(false);
 
 		try {
 			// Create a socket to connect to the server

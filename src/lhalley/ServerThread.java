@@ -54,25 +54,26 @@ class BuildGUI extends JFrame {
 		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
 		getContentPane().add(currentStudentNumberLabel);
 		
-//		JTextPane currentStudentNumberTemp = new JTextPane();
-//		currentStudentNumberTemp.setEditable(false);
-//		currentStudentNumberTemp.setBounds(390, 73, 284, 20);
-//		getContentPane().add(currentStudentNumberTemp);
+		JTextPane currentStudentNumberTemp = new JTextPane();
+		currentStudentNumberTemp.setEditable(false);
+		currentStudentNumberTemp.setBounds(390, 73, 284, 20);
+		getContentPane().add(currentStudentNumberTemp);
 
 		JLabel currentStudentNameLabel = new JLabel("Student Name");
 		currentStudentNameLabel.setBounds(390, 104, 284, 20);
 		getContentPane().add(currentStudentNameLabel);
 
-//		JTextPane currentStudentNameTemp = new JTextPane();
-//		currentStudentNameTemp.setEditable(false);
-//		currentStudentNameTemp.setBounds(390, 135, 284, 20);
-//		getContentPane().add(currentStudentNameTemp);
+		JTextPane currentStudentNameTemp = new JTextPane();
+		currentStudentNameTemp.setEditable(false);
+		currentStudentNameTemp.setBounds(390, 135, 284, 20);
+		getContentPane().add(currentStudentNameTemp);
 
 		setTitle("Server");
 		setBackground(Color.WHITE);  
 		setSize(700, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		setResizable(false);
 		getContentPane().repaint();
 
 	}
