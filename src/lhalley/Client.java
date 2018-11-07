@@ -35,7 +35,7 @@ public class Client extends JFrame {
 		getContentPane().add(enteredStudentNumber);
 		enteredStudentNumber.setColumns(10);
 
-		JLabel lblStudentId = new JLabel("Student ID:");
+		JLabel lblStudentId = new JLabel("Student Number:");
 		lblStudentId.setBounds(10, 14, 112, 14);
 		getContentPane().add(lblStudentId);
 

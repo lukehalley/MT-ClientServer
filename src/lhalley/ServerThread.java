@@ -12,8 +12,17 @@ import java.awt.*;
 
 import javax.swing.*;
 
+public class ServerThread extends Thread {
+	
+	public static void main(String[] args) {
+		Connect c = new Connect();
+		c.run();
+	}
+
+}
+
 @SuppressWarnings("serial")
-public class ServerThread extends JFrame {
+class BuildGUI extends JFrame {
 	
 	JTextArea serverStatus;
 	JTextPane clientTitle;
@@ -21,8 +30,8 @@ public class ServerThread extends JFrame {
 	JTextPane currentStudentNumber;
 	JLabel currentStudentNameLabel;
 	JTextPane currentStudentName;
-
-	public ServerThread() {
+	
+	public BuildGUI() {
 
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
@@ -42,7 +51,7 @@ public class ServerThread extends JFrame {
 		clientTitle.setBounds(390, 11, 284, 20);
 		getContentPane().add(clientTitle);
 
-		JLabel currentStudentNumberLabel = new JLabel("Student ID");
+		JLabel currentStudentNumberLabel = new JLabel("Student Number");
 		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
 		getContentPane().add(currentStudentNumberLabel);
 
@@ -68,6 +77,7 @@ public class ServerThread extends JFrame {
 
 	public void setServerStatus(JTextArea serverStatus) {
 		this.serverStatus = serverStatus;
+		getContentPane().add(serverStatus);
 	}
 
 	public JTextPane getClientTitle() {
@@ -76,6 +86,7 @@ public class ServerThread extends JFrame {
 
 	public void setClientTitle(JTextPane clientTitle) {
 		this.clientTitle = clientTitle;
+		getContentPane().add(clientTitle);
 	}
 
 	public JLabel getCurrentStudentNumberLabel() {
@@ -84,6 +95,7 @@ public class ServerThread extends JFrame {
 
 	public void setCurrentStudentNumberLabel(JLabel currentStudentNumberLabel) {
 		this.currentStudentNumberLabel = currentStudentNumberLabel;
+		getContentPane().add(currentStudentNumberLabel);
 	}
 
 	public JTextPane getCurrentStudentNumber() {
@@ -92,6 +104,7 @@ public class ServerThread extends JFrame {
 
 	public void setCurrentStudentNumber(JTextPane currentStudentNumber) {
 		this.currentStudentNumber = currentStudentNumber;
+		getContentPane().add(currentStudentNumber);
 	}
 
 	public JLabel getCurrentStudentNameLabel() {
@@ -100,6 +113,7 @@ public class ServerThread extends JFrame {
 
 	public void setCurrentStudentNameLabel(JLabel currentStudentNameLabel) {
 		this.currentStudentNameLabel = currentStudentNameLabel;
+		getContentPane().add(currentStudentNameLabel);
 	}
 
 	public JTextPane getCurrentStudentName() {
@@ -108,15 +122,12 @@ public class ServerThread extends JFrame {
 
 	public void setCurrentStudentName(JTextPane currentStudentName) {
 		this.currentStudentName = currentStudentName;
+		getContentPane().add(currentStudentName);
 	}
 	
-	public static void main(String[] args) {
-		Connect c = new Connect();
-		c.run();
-	}
-
 }
 
+@SuppressWarnings("serial")
 class Connect extends JPanel {
 
 	public final String userName = "root";
@@ -144,7 +155,7 @@ class Connect extends JPanel {
 		// Loading all the student id's in
 
 		try {
-			ServerThread panel = new ServerThread();
+			BuildGUI panel = new BuildGUI();
 			System.out.println(panel);
 			// Init of connection object
 			Connection dbConnection = null;
@@ -240,9 +251,13 @@ class Connect extends JPanel {
 					} else {
 						loginStatus = false;
 						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						serverSocket.close();
 					}
 
 				}
+				
+				
+				
 			} catch (IOException ex) {
 				System.err.println(ex);
 			}
