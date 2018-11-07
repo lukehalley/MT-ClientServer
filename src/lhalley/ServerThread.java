@@ -27,23 +27,22 @@ class BuildGUI extends JFrame {
 	JTextArea serverStatus;
 	JTextPane clientTitle;
 	JLabel currentStudentNumberLabel;
-	JTextPane currentStudentNumber;
+	JTextArea currentStudentNumber;
 	JLabel currentStudentNameLabel;
-	JTextPane currentStudentName;
+	JTextArea currentStudentName;
 	
 	public BuildGUI() {
 
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
 		JPanel p = new JPanel();
-		p.setBounds(0, 0, 484, 0);
 		p.setLayout(new BorderLayout());
 		getContentPane().add(p);
 
-//		JTextArea serverStatus = new JTextArea();
-//		serverStatus.setBounds(10, 11, 370, 239);
-//		serverStatus.setEditable(false);
-//		getContentPane().add(serverStatus);
+		JTextArea serverStatusTemp = new JTextArea();
+		serverStatusTemp.setBounds(10, 11, 370, 239);
+		serverStatusTemp.setEditable(false);
+		getContentPane().add(serverStatusTemp);
 
 		JTextPane clientTitle = new JTextPane();
 		clientTitle.setText("WIT Student Login");
@@ -54,20 +53,27 @@ class BuildGUI extends JFrame {
 		JLabel currentStudentNumberLabel = new JLabel("Student Number");
 		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
 		getContentPane().add(currentStudentNumberLabel);
+		
+//		JTextPane currentStudentNumberTemp = new JTextPane();
+//		currentStudentNumberTemp.setEditable(false);
+//		currentStudentNumberTemp.setBounds(390, 73, 284, 20);
+//		getContentPane().add(currentStudentNumberTemp);
 
 		JLabel currentStudentNameLabel = new JLabel("Student Name");
 		currentStudentNameLabel.setBounds(390, 104, 284, 20);
 		getContentPane().add(currentStudentNameLabel);
 
-//		JTextPane currentStudentName = new JTextPane();
-//		currentStudentName.setEditable(false);
-//		currentStudentName.setBounds(390, 135, 284, 20);
-//		getContentPane().add(currentStudentName);
+//		JTextPane currentStudentNameTemp = new JTextPane();
+//		currentStudentNameTemp.setEditable(false);
+//		currentStudentNameTemp.setBounds(390, 135, 284, 20);
+//		getContentPane().add(currentStudentNameTemp);
 
 		setTitle("Server");
+		setBackground(Color.WHITE);  
 		setSize(700, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		getContentPane().repaint();
 
 	}
 
@@ -75,9 +81,10 @@ class BuildGUI extends JFrame {
 		return serverStatus;
 	}
 
-	public void setServerStatus(JTextArea serverStatus) {
-		this.serverStatus = serverStatus;
-		getContentPane().add(serverStatus);
+	public void setServerStatus(JTextArea serverStat) {
+		this.serverStatus = serverStat;
+		getContentPane().add(serverStat);
+		getContentPane().repaint();
 	}
 
 	public JTextPane getClientTitle() {
@@ -87,6 +94,7 @@ class BuildGUI extends JFrame {
 	public void setClientTitle(JTextPane clientTitle) {
 		this.clientTitle = clientTitle;
 		getContentPane().add(clientTitle);
+		getContentPane().repaint();
 	}
 
 	public JLabel getCurrentStudentNumberLabel() {
@@ -96,15 +104,17 @@ class BuildGUI extends JFrame {
 	public void setCurrentStudentNumberLabel(JLabel currentStudentNumberLabel) {
 		this.currentStudentNumberLabel = currentStudentNumberLabel;
 		getContentPane().add(currentStudentNumberLabel);
+		getContentPane().repaint();
 	}
 
-	public JTextPane getCurrentStudentNumber() {
+	public JTextArea getCurrentStudentNumber() {
 		return currentStudentNumber;
 	}
 
-	public void setCurrentStudentNumber(JTextPane currentStudentNumber) {
+	public void setCurrentStudentNumber(JTextArea currentStudentNumber) {
 		this.currentStudentNumber = currentStudentNumber;
 		getContentPane().add(currentStudentNumber);
+		getContentPane().repaint();
 	}
 
 	public JLabel getCurrentStudentNameLabel() {
@@ -114,16 +124,19 @@ class BuildGUI extends JFrame {
 	public void setCurrentStudentNameLabel(JLabel currentStudentNameLabel) {
 		this.currentStudentNameLabel = currentStudentNameLabel;
 		getContentPane().add(currentStudentNameLabel);
+		getContentPane().repaint();
 	}
 
-	public JTextPane getCurrentStudentName() {
+	public JTextArea getCurrentStudentName() {
 		return currentStudentName;
 	}
 
-	public void setCurrentStudentName(JTextPane currentStudentName) {
+	public void setCurrentStudentName(JTextArea currentStudentName) {
 		this.currentStudentName = currentStudentName;
 		getContentPane().add(currentStudentName);
+		getContentPane().repaint();
 	}
+	
 	
 }
 
@@ -156,7 +169,6 @@ class Connect extends JPanel {
 
 		try {
 			BuildGUI panel = new BuildGUI();
-			System.out.println(panel);
 			// Init of connection object
 			Connection dbConnection = null;
 			// Init of statement object
@@ -193,19 +205,15 @@ class Connect extends JPanel {
 				serverStatus.setEditable(false);
 				panel.setServerStatus(serverStatus);
 				
-				JTextPane currentStudentNumber = new JTextPane();
+				JTextArea currentStudentNumber = new JTextArea();
 				currentStudentNumber.setEditable(false);
 				currentStudentNumber.setBounds(390, 73, 284, 20);
 				panel.setCurrentStudentNumber(currentStudentNumber);
 				
-				JTextPane currentStudentName = new JTextPane();
+				JTextArea currentStudentName = new JTextArea();
 				currentStudentName.setEditable(false);
 				currentStudentName.setBounds(390, 135, 284, 20);
 				panel.setCurrentStudentName(currentStudentName);
-				
-				System.out.println(serverStatus);
-				System.out.println(currentStudentNumber);
-				System.out.println(currentStudentName);
 				
 				while (true) {
 
@@ -215,8 +223,6 @@ class Connect extends JPanel {
 					String sn = Integer.toString(recievedStudentNum);
 
 					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
-
-					System.out.println(getUserByStNum);
 
 					ResultSet r = statement.executeQuery(getUserByStNum);
 					r.next();
@@ -230,8 +236,8 @@ class Connect extends JPanel {
 					boolean loginStatus;
 					
 					JTextArea serverStat = panel.getServerStatus();
-					JTextPane currStudName = panel.getCurrentStudentName();
-					JTextPane currStudNum = panel.getCurrentStudentNumber();
+					JTextArea currStudName = panel.getCurrentStudentName();
+					JTextArea currStudNum = panel.getCurrentStudentNumber();
 					
 					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
 
@@ -239,9 +245,10 @@ class Connect extends JPanel {
 						loginStatus = true;
 						serverStat.append(
 								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-
-						currStudNum.setText(customerSTUDID);
-						currStudName.setText(customerNAME);
+						currStudNum.append(customerSTUDID);
+						System.out.print(currStudNum.getText());
+						currStudName.append(customerNAME);
+						System.out.print(currStudName.getText());
 						try {
 							outputToClient.writeBoolean(loginStatus);
 							outputToClient.writeUTF(customerNAME);

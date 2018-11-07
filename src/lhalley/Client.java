@@ -31,12 +31,12 @@ public class Client extends JFrame {
 		getContentPane().add(p);
 
 		enteredStudentNumber = new JTextField();
-		enteredStudentNumber.setBounds(82, 11, 183, 20);
+		enteredStudentNumber.setBounds(110, 11, 155, 20);
 		getContentPane().add(enteredStudentNumber);
 		enteredStudentNumber.setColumns(10);
 
 		JLabel lblStudentId = new JLabel("Student Number:");
-		lblStudentId.setBounds(10, 14, 112, 14);
+		lblStudentId.setBounds(10, 14, 128, 14);
 		getContentPane().add(lblStudentId);
 
 		JSeparator separator = new JSeparator();
@@ -61,7 +61,7 @@ public class Client extends JFrame {
 		getContentPane().add(btnExit);
 
 		setTitle("Client");
-		setSize(500, 300);
+		setSize(534, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
