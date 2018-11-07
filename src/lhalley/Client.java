@@ -105,6 +105,7 @@ public class Client extends JFrame {
 						if (loginStatus) {
 							statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
 							lblStatus.setText("Status: Logged In");
+							btnLogin.setEnabled(false);
 						} else {
 							statusView.append("Student number not found! Log in failed - please try again." + '\n');
 						}
