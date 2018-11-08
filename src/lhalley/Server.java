@@ -166,174 +166,132 @@ class Connect extends Thread {
 				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
 		return conn;
 	}
-	
-	public JFrame getFrame() {
-		
-		try {
-			BuildGUI panel = new BuildGUI();
-
-			try {
-
-				JTextArea serverStatus = new JTextArea();
-				serverStatus.setBounds(10, 11, 370, 239);
-				serverStatus.setEditable(false);
-				panel.setServerStatus(serverStatus);
-
-				JTextArea currentStudentNumber = new JTextArea();
-				currentStudentNumber.setEditable(false);
-				currentStudentNumber.setBounds(390, 73, 284, 20);
-				panel.setCurrentStudentNumber(currentStudentNumber);
-
-				JTextArea currentStudentName = new JTextArea();
-				currentStudentName.setEditable(false);
-				currentStudentName.setBounds(390, 135, 284, 20);
-				panel.setCurrentStudentName(currentStudentName);
-				
-				return panel;
-				
-			} catch (IOException ex) {
-				System.err.println(ex);
-			}
-		
-		} catch (SQLException e) {
-			// Catch any errors and display them in a pop on the users screen aswell as in
-			// the console
-			final JPanel panel = new JPanel();
-			JOptionPane.showMessageDialog(panel, "Could not get panel! Error: " + e.getMessage(),
-					"Panel Error!", JOptionPane.ERROR_MESSAGE);
-			System.err.println("Panel could not be retrived! Error: " + e.getMessage());
-
-		}
-		
-	}
 
 	// Function which is used to get a connection to the database
 	public Socket reqListen() {
-		
+
 		try {
+			// Create a server socket
 
-			try {
-				// Create a server socket
-				
-				ServerSocket serverSocket = new ServerSocket(8000);
+			ServerSocket serverSocket = new ServerSocket(8000);
 
-				// Listen for a connection request
-				Socket socket = serverSocket.accept();
-				
-				return socket;
-				
-			} catch (IOException ex) {
-				System.err.println(ex);
-			}
-			
-		
-		} catch (SQLException e) {
-			// Catch any errors and display them in a pop on the users screen aswell as in
-			// the console
-			final JPanel panel = new JPanel();
-			JOptionPane.showMessageDialog(panel, "Data could not be initialized! Error: " + e.getMessage(),
-					"Initialization Error!", JOptionPane.ERROR_MESSAGE);
-			System.err.println("Data could not be initialized! Error: " + e.getMessage());
+			// Listen for a connection request
+			Socket socket = serverSocket.accept();
 
+			return socket;
+
+		} catch (IOException ex) {
+			System.err.println(ex);
+			return null;
 		}
-		
+
 	}
-		
 
 	@SuppressWarnings("unused")
 	public void run() {
-		
+
 		// Init of connection object
 		Connection dbConnection = null;
-		
+
 		// Init of statement object
 		Statement statement = null;
 
 		try {
-			
-			// Get all student IDs
-			String getAllStudentIDs = "SELECT * FROM " + studentTable;
 
-			// Getting the connection
-			dbConnection = getConnection();
-			// Begin creation of the db statement before executing command
-			statement = dbConnection.createStatement();
-			ResultSet rs = statement.executeQuery(getAllStudentIDs);
+			BuildGUI panel = new BuildGUI();
 
-			ArrayList<String> ids = new ArrayList<String>();
+			JTextArea serverStatus = new JTextArea();
+			serverStatus.setBounds(10, 11, 370, 239);
+			serverStatus.setEditable(false);
+			panel.setServerStatus(serverStatus);
 
-			while (rs.next()) {
-				ids.add(rs.getString(2));
-			}
-			
-			Socket activeSocket = null;
-			
-			activeSocket = reqListen();
-			
-			// Create data input and output streams
-			DataInputStream inputFromClient = new DataInputStream(activeSocket.getInputStream());
-			DataOutputStream outputToClient = new DataOutputStream(activeSocket.getOutputStream());
+			JTextArea currentStudentNumber = new JTextArea();
+			currentStudentNumber.setEditable(false);
+			currentStudentNumber.setBounds(390, 73, 284, 20);
+			panel.setCurrentStudentNumber(currentStudentNumber);
 
-			while (activeSocket.isConnected()) {
+			JTextArea currentStudentName = new JTextArea();
+			currentStudentName.setEditable(false);
+			currentStudentName.setBounds(390, 135, 284, 20);
+			panel.setCurrentStudentName(currentStudentName);
 
-				// Receive radius from the client
-				int recievedStudentNum = inputFromClient.readInt();
+			try {
+				// Get all student IDs
+				String getAllStudentIDs = "SELECT * FROM " + studentTable;
 
-				String sn = Integer.toString(recievedStudentNum);
+				// Getting the connection
+				dbConnection = getConnection();
+				// Begin creation of the db statement before executing command
+				statement = dbConnection.createStatement();
+				ResultSet rs = statement.executeQuery(getAllStudentIDs);
 
-				String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+				ArrayList<String> ids = new ArrayList<String>();
 
-				ResultSet r = statement.executeQuery(getUserByStNum);
-				r.next();
-				String customerSID = r.getString("SID");
-				String customerSTUDID = r.getString("STUD_ID");
-				String customerFNAME = r.getString("FNAME");
-				String customerSNAME = r.getString("SNAME");
-				String customerNAME = customerFNAME + " " + customerSNAME;
-
-				// Compute area
-				boolean loginStatus;
-
-				JTextArea serverStat = panel.getServerStatus();
-				JTextArea currStudName = panel.getCurrentStudentName();
-				JTextArea currStudNum = panel.getCurrentStudentNumber();
-
-				serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-
-				if (ids.contains(sn)) {
-					loginStatus = true;
-					serverStat.append(
-							"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-					currStudNum.append(customerSTUDID);
-					currStudName.append(customerNAME);
-					try {
-						outputToClient.writeBoolean(loginStatus);
-						outputToClient.writeUTF(customerNAME);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				} else {
-					loginStatus = false;
-					serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-					serverSocket.close();
+				while (rs.next()) {
+					ids.add(rs.getString(2));
 				}
 
+				Socket activeSocket = null;
+
+				activeSocket = reqListen();
+
+				// Create data input and output streams
+				DataInputStream inputFromClient = new DataInputStream(activeSocket.getInputStream());
+				DataOutputStream outputToClient = new DataOutputStream(activeSocket.getOutputStream());
+
+				while (activeSocket.isConnected()) {
+
+					// Receive radius from the client
+					int recievedStudentNum = inputFromClient.readInt();
+
+					String sn = Integer.toString(recievedStudentNum);
+
+					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+
+					ResultSet r = statement.executeQuery(getUserByStNum);
+					r.next();
+					String customerSID = r.getString("SID");
+					String customerSTUDID = r.getString("STUD_ID");
+					String customerFNAME = r.getString("FNAME");
+					String customerSNAME = r.getString("SNAME");
+					String customerNAME = customerFNAME + " " + customerSNAME;
+
+					// Compute area
+					boolean loginStatus;
+
+					JTextArea serverStat = panel.getServerStatus();
+					JTextArea currStudName = panel.getCurrentStudentName();
+					JTextArea currStudNum = panel.getCurrentStudentNumber();
+
+					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
+
+					if (ids.contains(sn)) {
+						loginStatus = true;
+						serverStat.append(
+								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+						currStudNum.append(customerSTUDID);
+						currStudName.append(customerNAME);
+						try {
+							outputToClient.writeBoolean(loginStatus);
+							outputToClient.writeUTF(customerNAME);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					} else {
+						loginStatus = false;
+						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						activeSocket.close();
+					}
+
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 
 		} catch (IOException ex) {
 			System.err.println(ex);
 		}
 
-	} catch (SQLException e) {
-		// Catch any errors and display them in a pop on the users screen aswell as in
-		// the console
-		final JPanel panel = new JPanel();
-		JOptionPane.showMessageDialog(panel, "Data could not be initialized! Error: " + e.getMessage(),
-				"Initialization Error!", JOptionPane.ERROR_MESSAGE);
-		System.err.println("Data could not be initialized! Error: " + e.getMessage());
-
 	}
-
-}
 
 }
