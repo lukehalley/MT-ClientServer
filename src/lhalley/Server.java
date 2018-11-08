@@ -11,17 +11,6 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-//public class Server {
-//
-//	public static void main(String[] args) {
-//
-//		Connect c = new Connect();
-//		c.run();
-//
-//	}
-//
-//}
-
 @SuppressWarnings("serial")
 class BuildGUI extends JFrame {
 
@@ -141,165 +130,164 @@ class BuildGUI extends JFrame {
 
 }
 
-class Connect extends Thread {
-
-	public final String userName = "root";
-	public final String password = "";
-	public final String serverName = "localhost";
-	public final int portNumber = 3306;
-	public final String dbName = "wit";
-	public String studentTable = "students";
-
-	// Function which is used to get a connection to the database
-	@SuppressWarnings("resource")
-	public Socket reqListen() {
-
-		try {
-			// Create a server socket
-
-			ServerSocket serverSocket = new ServerSocket(8000);
-
-			System.out.println("Started Connect Thread");
-
-			// Listen for a connection request
-			Socket socket = serverSocket.accept();
-
-			return socket;
-
-		} catch (IOException ex) {
-			System.err.println(ex);
-			return null;
-		}
-
-	}
-
-	// Function which is used to get a connection to the database
-	public Connection getConnection() throws SQLException {
-		Connection conn = null;
-		Properties connectionProps = new Properties();
-		// Setting credentials
-		connectionProps.put("user", this.userName);
-		connectionProps.put("password", this.password);
-		// Getting the connection using jdbc
-		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
-				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
-		return conn;
-	}
-
-	@SuppressWarnings("unused")
-	public void run() {
-
-		// Init of connection object
-		Connection dbConnection = null;
-
-		// Init of statement object
-		Statement statement = null;
-
-		try {
-
-			BuildGUI panel = new BuildGUI();
-
-			JTextArea serverStatus = new JTextArea();
-			serverStatus.setBounds(10, 11, 370, 239);
-			serverStatus.setEditable(false);
-			panel.setServerStatus(serverStatus);
-
-			JTextArea currentStudentNumber = new JTextArea();
-			currentStudentNumber.setEditable(false);
-			currentStudentNumber.setBounds(390, 73, 284, 20);
-			panel.setCurrentStudentNumber(currentStudentNumber);
-
-			JTextArea currentStudentName = new JTextArea();
-			currentStudentName.setEditable(false);
-			currentStudentName.setBounds(390, 135, 284, 20);
-			panel.setCurrentStudentName(currentStudentName);
-
-			try {
-				// Get all student IDs
-				String getAllStudentIDs = "SELECT * FROM " + studentTable;
-
-				// Getting the connection
-				dbConnection = getConnection();
-				// Begin creation of the db statement before executing command
-				statement = dbConnection.createStatement();
-				ResultSet rs = statement.executeQuery(getAllStudentIDs);
-
-				ArrayList<String> ids = new ArrayList<String>();
-
-				while (rs.next()) {
-					ids.add(rs.getString(2));
-				}
-
-				Socket activeSocket = null;
-
-				activeSocket = reqListen();
-
-				// Create data input and output streams
-				DataInputStream inputFromClient = new DataInputStream(activeSocket.getInputStream());
-				DataOutputStream outputToClient = new DataOutputStream(activeSocket.getOutputStream());
-
-				while (activeSocket.isConnected()) {
-
-					// Receive radius from the client
-					int recievedStudentNum = inputFromClient.readInt();
-
-					String sn = Integer.toString(recievedStudentNum);
-
-					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
-
-					ResultSet r = statement.executeQuery(getUserByStNum);
-					r.next();
-					String customerSID = r.getString("SID");
-					String customerSTUDID = r.getString("STUD_ID");
-					String customerFNAME = r.getString("FNAME");
-					String customerSNAME = r.getString("SNAME");
-					String customerNAME = customerFNAME + " " + customerSNAME;
-
-					// Compute area
-					boolean loginStatus;
-
-					JTextArea serverStat = panel.getServerStatus();
-					JTextArea currStudName = panel.getCurrentStudentName();
-					JTextArea currStudNum = panel.getCurrentStudentNumber();
-
-					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-
-					if (ids.contains(sn)) {
-						loginStatus = true;
-						serverStat.append(
-								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-						currStudNum.append(customerSTUDID);
-						currStudName.append(customerNAME);
-						try {
-							outputToClient.writeBoolean(loginStatus);
-							outputToClient.writeUTF(customerNAME);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-					} else {
-						loginStatus = false;
-						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-						activeSocket.close();
-					}
-
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-		} catch (IOException ex) {
-			System.err.println(ex);
-		}
-
-	}
-
-}
+//class Connect extends Thread {
+//
+//	public final String userName = "root";
+//	public final String password = "";
+//	public final String serverName = "localhost";
+//	public final int portNumber = 3306;
+//	public final String dbName = "wit";
+//	public String studentTable = "students";
+//
+//	public Socket reqListen() {
+//
+//		try {
+//			// Create a server socket
+//
+//			ServerSocket serverSocket = new ServerSocket(8000);
+//
+//			System.out.println("Started Connect Thread");
+//
+//			// Listen for a connection request
+//			Socket socket = serverSocket.accept();
+//
+//			return socket;
+//
+//		} catch (IOException ex) {
+//			System.err.println(ex);
+//			return null;
+//		}
+//
+//	}
+//
+//	// Function which is used to get a connection to the database
+//	public Connection getConnection() throws SQLException {
+//		Connection conn = null;
+//		Properties connectionProps = new Properties();
+//		// Setting credentials
+//		connectionProps.put("user", this.userName);
+//		connectionProps.put("password", this.password);
+//		// Getting the connection using jdbc
+//		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
+//				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
+//		return conn;
+//	}
+//
+//	@SuppressWarnings("unused")
+//	public void run() {
+//
+//		// Init of connection object
+//		Connection dbConnection = null;
+//
+//		// Init of statement object
+//		Statement statement = null;
+//
+//		try {
+//
+//			BuildGUI panel = new BuildGUI();
+//
+//			JTextArea serverStatus = new JTextArea();
+//			serverStatus.setBounds(10, 11, 370, 239);
+//			serverStatus.setEditable(false);
+//			panel.setServerStatus(serverStatus);
+//
+//			JTextArea currentStudentNumber = new JTextArea();
+//			currentStudentNumber.setEditable(false);
+//			currentStudentNumber.setBounds(390, 73, 284, 20);
+//			panel.setCurrentStudentNumber(currentStudentNumber);
+//
+//			JTextArea currentStudentName = new JTextArea();
+//			currentStudentName.setEditable(false);
+//			currentStudentName.setBounds(390, 135, 284, 20);
+//			panel.setCurrentStudentName(currentStudentName);
+//
+//			try {
+//				// Get all student IDs
+//				String getAllStudentIDs = "SELECT * FROM " + studentTable;
+//
+//				// Getting the connection
+//				dbConnection = getConnection();
+//				// Begin creation of the db statement before executing command
+//				statement = dbConnection.createStatement();
+//				ResultSet rs = statement.executeQuery(getAllStudentIDs);
+//
+//				ArrayList<String> ids = new ArrayList<String>();
+//
+//				while (rs.next()) {
+//					ids.add(rs.getString(2));
+//				}
+//
+//				Socket activeSocket = null;
+//
+//				activeSocket = reqListen();
+//
+//				// Create data input and output streams
+//				DataInputStream inputFromClient = new DataInputStream(activeSocket.getInputStream());
+//				DataOutputStream outputToClient = new DataOutputStream(activeSocket.getOutputStream());
+//
+//				while (activeSocket.isConnected()) {
+//
+//					// Receive radius from the client
+//					int recievedStudentNum = inputFromClient.readInt();
+//
+//					String sn = Integer.toString(recievedStudentNum);
+//
+//					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+//
+//					ResultSet r = statement.executeQuery(getUserByStNum);
+//					r.next();
+//					String customerSID = r.getString("SID");
+//					String customerSTUDID = r.getString("STUD_ID");
+//					String customerFNAME = r.getString("FNAME");
+//					String customerSNAME = r.getString("SNAME");
+//					String customerNAME = customerFNAME + " " + customerSNAME;
+//
+//					// Compute area
+//					boolean loginStatus;
+//
+//					JTextArea serverStat = panel.getServerStatus();
+//					JTextArea currStudName = panel.getCurrentStudentName();
+//					JTextArea currStudNum = panel.getCurrentStudentNumber();
+//
+//					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
+//
+//					if (ids.contains(sn)) {
+//						loginStatus = true;
+//						serverStat.append(
+//								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+//						currStudNum.append(customerSTUDID);
+//						currStudName.append(customerNAME);
+//						try {
+//							outputToClient.writeBoolean(loginStatus);
+//							outputToClient.writeUTF(customerNAME);
+//						} catch (IOException e1) {
+//							e1.printStackTrace();
+//						}
+//					} else {
+//						loginStatus = false;
+//						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+//						activeSocket.close();
+//					}
+//
+//				}
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//			}
+//
+//		} catch (IOException ex) {
+//			System.err.println(ex);
+//		}
+//
+//	}
+//
+//}
 
 //Server class 
 public class Server {
+	private static ServerSocket ss;
+
 	public static void main(String[] args) throws IOException {
-		// server is listening on port 5056
-		ServerSocket ss = new ServerSocket(8000);
+		ss = new ServerSocket(8000);
 
 		// running infinite loop for getting
 		// client request
@@ -368,10 +356,8 @@ class ClientHandler extends Thread {
 	@Override
 	public void run() {
 		
-		// Init of connection object
 		Connection dbConnection = null;
 
-		// Init of statement object
 		Statement statement = null;
 		
 		BuildGUI panel = new BuildGUI();
@@ -391,50 +377,48 @@ class ClientHandler extends Thread {
 		currentStudentName.setBounds(390, 135, 284, 20);
 		panel.setCurrentStudentName(currentStudentName);
 		
-		while (true) {
+		try {
+			boolean loginStatus;
+			// Get all student IDs
+			String getAllStudentIDs = "SELECT * FROM " + studentTable;
+			// Getting the connection
+			dbConnection = getConnection();
+			// Begin creation of the db statement before executing command
+			statement = dbConnection.createStatement();
+			ResultSet rs = statement.executeQuery(getAllStudentIDs);
+			ArrayList<String> ids = new ArrayList<String>();
+			while (rs.next()) {
+				ids.add(rs.getString(2));
+			}
 			
-			try {
+			while (true) {
+				// Receive radius from the client
+				int recievedStudentNum = dis.readInt();
+				String sn = Integer.toString(recievedStudentNum);
+				String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+				ResultSet r = statement.executeQuery(getUserByStNum);
 				
-				try {
-					
-					// Get all student IDs
-					String getAllStudentIDs = "SELECT * FROM " + studentTable;
-
-					// Getting the connection
-					dbConnection = getConnection();
-					// Begin creation of the db statement before executing command
-					statement = dbConnection.createStatement();
-					ResultSet rs = statement.executeQuery(getAllStudentIDs);
-
-					ArrayList<String> ids = new ArrayList<String>();
-
-					while (rs.next()) {
-						ids.add(rs.getString(2));
-					}
-
-					// Receive radius from the client
-					int recievedStudentNum = dis.readInt();
-
-					String sn = Integer.toString(recievedStudentNum);
-
-					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
-
-					ResultSet r = statement.executeQuery(getUserByStNum);
+				if (ids == null) {
+					loginStatus = false;
+					dos.writeBoolean(loginStatus);
+					System.out.println("No data");
+					s.close();
+					dbConnection.close();
+				} else {
 					r.next();
 					String customerSTUDID = r.getString("STUD_ID");
 					String customerFNAME = r.getString("FNAME");
 					String customerSNAME = r.getString("SNAME");
 					String customerNAME = customerFNAME + " " + customerSNAME;
-
+					
 					// Compute area
-					boolean loginStatus;
-
+					
 					JTextArea serverStat = panel.getServerStatus();
 					JTextArea currStudName = panel.getCurrentStudentName();
 					JTextArea currStudNum = panel.getCurrentStudentNumber();
-
 					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
 
+					// Check log in
 					if (ids.contains(sn)) {
 						loginStatus = true;
 						serverStat.append(
@@ -451,15 +435,88 @@ class ClientHandler extends Thread {
 						loginStatus = false;
 						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
 						s.close();
+						dbConnection.close();
 					}
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
-				
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		
+//		while (true) {
+//			
+//			try {
+//
+//				// Get all student IDs
+//				String getAllStudentIDs = "SELECT * FROM " + studentTable;
+//				
+//				try {
+//					
+//					// Getting the connection
+//					dbConnection = getConnection();
+//					// Begin creation of the db statement before executing command
+//					statement = dbConnection.createStatement();
+//					ResultSet rs = statement.executeQuery(getAllStudentIDs);
+//
+//					ArrayList<String> ids = new ArrayList<String>();
+//
+//					while (rs.next()) {
+//						ids.add(rs.getString(2));
+//					}
+//
+//					// Receive radius from the client
+//					int recievedStudentNum = dis.readInt();
+//
+//					String sn = Integer.toString(recievedStudentNum);
+//
+//					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+//
+//					ResultSet r = statement.executeQuery(getUserByStNum);
+//					r.next();
+//					String customerSTUDID = r.getString("STUD_ID");
+//					String customerFNAME = r.getString("FNAME");
+//					String customerSNAME = r.getString("SNAME");
+//					String customerNAME = customerFNAME + " " + customerSNAME;
+//
+//					// Compute area
+//					boolean loginStatus;
+//
+//					JTextArea serverStat = panel.getServerStatus();
+//					JTextArea currStudName = panel.getCurrentStudentName();
+//					JTextArea currStudNum = panel.getCurrentStudentNumber();
+//
+//					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
+//
+//					if (ids.contains(sn)) {
+//						loginStatus = true;
+//						serverStat.append(
+//								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+//						currStudNum.append(customerSTUDID);
+//						currStudName.append(customerNAME);
+//						try {
+//							dos.writeBoolean(loginStatus);
+//							dos.writeUTF(customerNAME);
+//						} catch (IOException e1) {
+//							e1.printStackTrace();
+//						}
+//					} else {
+//						loginStatus = false;
+//						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+//						s.close();
+//						dbConnection.close();
+//					}
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//				}
+//				
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
 
 	}
 }
