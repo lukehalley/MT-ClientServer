@@ -11,20 +11,16 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-public class Server {
-
-	public static void main(String[] args) {
-
-		// Connect c = new Connect();
-		// c.run();
-
-		Connect connectThread = new Connect();
-		connectThread.setPriority(Thread.MAX_PRIORITY);
-		System.out.println("Started Connect Thread");
-		connectThread.start();
-	}
-
-}
+//public class Server {
+//
+//	public static void main(String[] args) {
+//
+//		Connect c = new Connect();
+//		c.run();
+//
+//	}
+//
+//}
 
 @SuppressWarnings("serial")
 class BuildGUI extends JFrame {
@@ -155,25 +151,15 @@ class Connect extends Thread {
 	public String studentTable = "students";
 
 	// Function which is used to get a connection to the database
-	public Connection getConnection() throws SQLException {
-		Connection conn = null;
-		Properties connectionProps = new Properties();
-		// Setting credentials
-		connectionProps.put("user", this.userName);
-		connectionProps.put("password", this.password);
-		// Getting the connection using jdbc
-		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
-				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
-		return conn;
-	}
-
-	// Function which is used to get a connection to the database
+	@SuppressWarnings("resource")
 	public Socket reqListen() {
 
 		try {
 			// Create a server socket
 
 			ServerSocket serverSocket = new ServerSocket(8000);
+
+			System.out.println("Started Connect Thread");
 
 			// Listen for a connection request
 			Socket socket = serverSocket.accept();
@@ -185,6 +171,19 @@ class Connect extends Thread {
 			return null;
 		}
 
+	}
+
+	// Function which is used to get a connection to the database
+	public Connection getConnection() throws SQLException {
+		Connection conn = null;
+		Properties connectionProps = new Properties();
+		// Setting credentials
+		connectionProps.put("user", this.userName);
+		connectionProps.put("password", this.password);
+		// Getting the connection using jdbc
+		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
+				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
+		return conn;
 	}
 
 	@SuppressWarnings("unused")
@@ -294,4 +293,173 @@ class Connect extends Thread {
 
 	}
 
+}
+
+//Server class 
+public class Server {
+	public static void main(String[] args) throws IOException {
+		// server is listening on port 5056
+		ServerSocket ss = new ServerSocket(8000);
+
+		// running infinite loop for getting
+		// client request
+		while (true) {
+			
+			Socket s = null;
+
+			try {
+				// socket object to receive incoming client requests
+				s = ss.accept();
+
+				System.out.println("A new client is connected : " + s);
+
+				// obtaining input and out streams
+				DataInputStream dis = new DataInputStream(s.getInputStream());
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+				System.out.println("Assigning new thread for this client");
+
+				// create a new thread object
+				Thread t = new ClientHandler(s, dis, dos);
+
+				// Invoking the start() method
+				t.start();
+
+			} catch (Exception e) {
+				s.close();
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
+// ClientHandler class 
+class ClientHandler extends Thread {
+	final DataInputStream dis;
+	final DataOutputStream dos;
+	final Socket s;
+	public final String userName = "root";
+	public final String password = "";
+	public final String serverName = "localhost";
+	public final int portNumber = 3306;
+	public final String dbName = "wit";
+	public String studentTable = "students";
+
+	// Constructor
+	public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
+		this.s = s;
+		this.dis = dis;
+		this.dos = dos;
+	}
+	
+	// Function which is used to get a connection to the database
+	public Connection getConnection() throws SQLException {
+		Connection conn = null;
+		Properties connectionProps = new Properties();
+		// Setting credentials
+		connectionProps.put("user", this.userName);
+		connectionProps.put("password", this.password);
+		// Getting the connection using jdbc
+		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
+				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
+		return conn;
+	}
+	
+	@Override
+	public void run() {
+		
+		// Init of connection object
+		Connection dbConnection = null;
+
+		// Init of statement object
+		Statement statement = null;
+		
+		BuildGUI panel = new BuildGUI();
+
+		JTextArea serverStatus = new JTextArea();
+		serverStatus.setBounds(10, 11, 370, 239);
+		serverStatus.setEditable(false);
+		panel.setServerStatus(serverStatus);
+
+		JTextArea currentStudentNumber = new JTextArea();
+		currentStudentNumber.setEditable(false);
+		currentStudentNumber.setBounds(390, 73, 284, 20);
+		panel.setCurrentStudentNumber(currentStudentNumber);
+
+		JTextArea currentStudentName = new JTextArea();
+		currentStudentName.setEditable(false);
+		currentStudentName.setBounds(390, 135, 284, 20);
+		panel.setCurrentStudentName(currentStudentName);
+		
+		while (true) {
+			
+			try {
+				
+				try {
+					
+					// Get all student IDs
+					String getAllStudentIDs = "SELECT * FROM " + studentTable;
+
+					// Getting the connection
+					dbConnection = getConnection();
+					// Begin creation of the db statement before executing command
+					statement = dbConnection.createStatement();
+					ResultSet rs = statement.executeQuery(getAllStudentIDs);
+
+					ArrayList<String> ids = new ArrayList<String>();
+
+					while (rs.next()) {
+						ids.add(rs.getString(2));
+					}
+
+					// Receive radius from the client
+					int recievedStudentNum = dis.readInt();
+
+					String sn = Integer.toString(recievedStudentNum);
+
+					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+
+					ResultSet r = statement.executeQuery(getUserByStNum);
+					r.next();
+					String customerSTUDID = r.getString("STUD_ID");
+					String customerFNAME = r.getString("FNAME");
+					String customerSNAME = r.getString("SNAME");
+					String customerNAME = customerFNAME + " " + customerSNAME;
+
+					// Compute area
+					boolean loginStatus;
+
+					JTextArea serverStat = panel.getServerStatus();
+					JTextArea currStudName = panel.getCurrentStudentName();
+					JTextArea currStudNum = panel.getCurrentStudentNumber();
+
+					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
+
+					if (ids.contains(sn)) {
+						loginStatus = true;
+						serverStat.append(
+								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+						currStudNum.append(customerSTUDID);
+						currStudName.append(customerNAME);
+						try {
+							dos.writeBoolean(loginStatus);
+							dos.writeUTF(customerNAME);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					} else {
+						loginStatus = false;
+						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						s.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 }
