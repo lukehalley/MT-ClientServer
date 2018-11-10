@@ -460,6 +460,18 @@ class ClientHandler extends Thread {
 			final JPanel ioErrorPan = new JPanel();
 			JOptionPane.showMessageDialog(ioErrorPan, "Client Has Exited Without Logging Out",
 					"Client Exit!", JOptionPane.INFORMATION_MESSAGE);
+			// get the serverStat, currStudName and currStudNum fields form the panel to set
+			// them
+			JTextArea serverStat = panel.getServerStatus();
+			JTextArea currStudName = panel.getCurrentStudentName();
+			JTextArea currStudNum = panel.getCurrentStudentNumber();
+			// setting the serverStat field to blank
+			serverStat.setText("");
+			// letting the server user the current client has logged out
+			serverStat.append("Student has logged out!" + '\n');
+			// set both the currStudName and currStudNum to N/A as the client has logged out
+			currStudName.setText("N/A");
+			currStudNum.setText("N/A");
 		}
 	}
 }
