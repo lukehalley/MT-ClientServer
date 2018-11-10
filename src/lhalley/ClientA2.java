@@ -86,6 +86,7 @@ public class ClientA2 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
+						statusView.setText("");
 						// Get the radius from the text field
 						int sentStudentNumber = Integer.parseInt(enteredStudentNumber.getText().trim());
 
@@ -113,10 +114,12 @@ public class ClientA2 extends JFrame {
 								public void actionPerformed(ActionEvent e) {
 									try {
 										toServer.writeInt(0000);
-										socket.close();										
+
+										statusView.setText("");
 										statusView.append(userName + " you are now logged out and are now disconnected from the Server!" + '\n');
 										lblStatus.setText("Status: Logged Out");
 										btnLogin.setEnabled(true);
+										btnLogout.setEnabled(false);
 										enteredStudentNumber.setText("");
 									} catch (IOException e1) {
 										e1.printStackTrace();
@@ -144,6 +147,11 @@ public class ClientA2 extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
+					try {
+						socket.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			
