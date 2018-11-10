@@ -201,7 +201,7 @@ public class MultiThreadedServerA2 {
 
 				// create a new thread object and pass the Socket, DataInputStream and
 				// DataOutputStream
-				Thread clientThread = new ClientHandler(socket, dataInputStr, dataOutputStr);
+				Thread clientThread = new ConnectClient(socket, dataInputStr, dataOutputStr);
 
 				// Start the thread that was just created above
 				clientThread.start();
@@ -220,14 +220,14 @@ public class MultiThreadedServerA2 {
 	}
 }
 
-// ClientHandler class which gets the Student number that the client sends over and queries it against
+// ConnectClient class which gets the Student number that the client sends over and queries it against
 // the MySQL database. Based on the results two things can happen:
 // 1) Exsisting Student Number: The user is allowed to connect to the Server and is seen as logged in by themselves and the Server.
 // 2) Non-Exsisting Student Number: The user is NOT allowed to connect to the Server and is seen as logged out by themselves and the Server.
 // The server will never recieve an invalid Student number as I check it is valid on the client side (> 8 characters, only an int and above or equal to 00000001 - the first student number of WIT)
 // I use the number 00000000 to use as a LOGOUT request which is used by the user once they are logged in - this number is sent over and handled wiping the fields and setting the user as logged out
 // allowing the user to log in a s a new student in the same client.
-class ClientHandler extends Thread {
+class ConnectClient extends Thread {
 	// Creating the socket varables
 	final DataInputStream dataInputStr;
 	final DataOutputStream dataOutputStr;
@@ -242,9 +242,9 @@ class ClientHandler extends Thread {
 	public final String dbName = "wit";
 	public String studentTable = "students";
 
-	// Constructor for the ClientSocket class which takes in the three values needed
+	// Constructor for the ConnectClient class which takes in the three values needed
 	// to pass to the thread function above.
-	public ClientHandler(Socket socket, DataInputStream dataInputStr, DataOutputStream dataOutputStr) {
+	public ConnectClient(Socket socket, DataInputStream dataInputStr, DataOutputStream dataOutputStr) {
 		this.socket = socket;
 		this.dataInputStr = dataInputStr;
 		this.dataOutputStr = dataOutputStr;
