@@ -1,7 +1,11 @@
 // Luke Halley
 // 20071820
 // luke123halley@gmail.com
-// 
+//
+// TO RUN APPLICATION:
+// Run MultiThreadedServerA2.java (this file)
+// then run ClientA2.java
+//
 // Server part of the Multithreaded Client/Server Java application
 // 
 // The server only accepts requests from registered students. The client (code for this in the other class ClientA2.java) enters their StudentID and

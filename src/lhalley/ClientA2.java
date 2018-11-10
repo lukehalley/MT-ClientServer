@@ -1,7 +1,11 @@
 // Luke Halley
 // 20071820
 // luke123halley@gmail.com
-// 
+//
+// TO RUN APPLICATION:
+// Run MultiThreadedServerA2.java
+// then run ClientA2.java (this file)
+//
 // Client part of the Multithreaded Client/Server Java application
 // 
 // The client connects to the Server on startup which is placed in a new thread. The use can then enter a 8 digit student number
