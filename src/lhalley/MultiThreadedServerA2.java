@@ -36,7 +36,8 @@ class BuildGUI extends JFrame {
 	JLabel currentStudentNameLabel;
 	JTextArea currentStudentName;
 
-	// Method which adds components to Server panel, sets their relavent paramaters etc.
+	// Method which adds components to Server panel, sets their relavent paramaters
+	// etc.
 	// using .setEditable(false); to stop user removing text from the gui
 	public BuildGUI() {
 
@@ -242,7 +243,8 @@ class ConnectClient extends Thread {
 	public final String dbName = "wit";
 	public String studentTable = "students";
 
-	// Constructor for the ConnectClient class which takes in the three values needed
+	// Constructor for the ConnectClient class which takes in the three values
+	// needed
 	// to pass to the thread function above.
 	public ConnectClient(Socket socket, DataInputStream dataInputStr, DataOutputStream dataOutputStr) {
 		this.socket = socket;
@@ -399,7 +401,7 @@ class ConnectClient extends Thread {
 								JOptionPane.showMessageDialog(loginSendPan,
 										"Could not send login status and student name to client! Error: "
 												+ e1.getMessage(),
-												"Login Sucessfull Send Error!", JOptionPane.ERROR_MESSAGE);
+										"Login Sucessfull Send Error!", JOptionPane.ERROR_MESSAGE);
 								System.err.println("Could not send login status and student name to client! Error "
 										+ e1.getMessage());
 							}
@@ -458,8 +460,8 @@ class ConnectClient extends Thread {
 		} catch (IOException e) {
 			// Handle if a user exits without logging out or just shuts down their window
 			final JPanel ioErrorPan = new JPanel();
-			JOptionPane.showMessageDialog(ioErrorPan, "Client Has Exited Without Logging Out",
-					"Client Exit!", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(ioErrorPan, "Client Has Exited Without Logging Out", "Client Exit!",
+					JOptionPane.INFORMATION_MESSAGE);
 			// get the serverStat, currStudName and currStudNum fields form the panel to set
 			// them
 			JTextArea serverStat = panel.getServerStatus();

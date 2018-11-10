@@ -21,13 +21,14 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class ClientA2 extends JFrame {
 
-	// Initialising the DataOutputStream abd DataInputStream to be used with the connection to the server
+	// Initialising the DataOutputStream abd DataInputStream to be used with the
+	// connection to the server
 	private DataOutputStream toServer;
 	private DataInputStream fromServer;
-	
+
 	// Initialising the student number input field
 	private JTextField enteredStudentNumber;
-	
+
 	// Creating and assigning values to the varibles which will be used with the
 	// socket connection to log in and connect to the Server.
 	// The names of the variables explain their purpose.
@@ -41,10 +42,11 @@ public class ClientA2 extends JFrame {
 		new ClientA2();
 	}
 
-	// Method which adds components to Client panel, sets their relavent paramaters etc.
+	// Method which adds components to Client panel, sets their relavent paramaters
+	// etc.
 	// using .setEditable(false); to stop user removing text from the gui
 	public ClientA2() {
-		
+
 		// setting the window
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
@@ -63,8 +65,9 @@ public class ClientA2 extends JFrame {
 		JLabel lblStudentId = new JLabel("Student Number: ");
 		lblStudentId.setBounds(10, 50, 98, 14);
 		getContentPane().add(lblStudentId);
-		
-		JTextArea lblStudentGuide = new JTextArea("Enter Only Numbers, Must Be 8 Characters, Greater or Equal To 00000001 - Example: 12345678");
+
+		JTextArea lblStudentGuide = new JTextArea(
+				"Enter Only Numbers, Must Be 8 Characters, Greater or Equal To 00000001 - Example: 12345678");
 		lblStudentGuide.setEditable(false);
 		lblStudentGuide.setBounds(10, 11, 684, 20);
 		getContentPane().add(lblStudentGuide);
@@ -86,11 +89,11 @@ public class ClientA2 extends JFrame {
 		JLabel lblStatus = new JLabel("Status: Logged Out");
 		lblStatus.setBounds(10, 92, 464, 14);
 		getContentPane().add(lblStatus);
-		
+
 		JButton btnExit = new JButton("Exit");
 		btnExit.setBounds(599, 312, 95, 23);
 		getContentPane().add(btnExit);
-		
+
 		JButton btnLogout = new JButton("Logout");
 		btnLogout.setBounds(599, 46, 95, 23);
 		btnLogout.setEnabled(false);
@@ -121,24 +124,28 @@ public class ClientA2 extends JFrame {
 					try {
 						// set the statusView to blank
 						statusView.setText("");
-						
+
 						// Check student number entered is not a string
 						// ".*\\d+.*" = check its a number - 1234
-						if (enteredStudentNumber.getText().matches(".*\\d+.*") && enteredStudentNumber.getText().length() == 8 && !enteredStudentNumber.getText().matches(LOGOUT_CODE_STR)) {
+						if (enteredStudentNumber.getText().matches(".*\\d+.*")
+								&& enteredStudentNumber.getText().length() == 8
+								&& !enteredStudentNumber.getText().matches(LOGOUT_CODE_STR)) {
 							// Get the stduent number from the text field and parse it to an Integer
 							int sentStudentNumber = Integer.parseInt(enteredStudentNumber.getText().trim());
-							// let the user know that the client going to send over the number he/she has entered
-							statusView.append("Checking if: " + sentStudentNumber + " is a valid and exsisting student number... \n");
-							
+							// let the user know that the client going to send over the number he/she has
+							// entered
+							statusView.append("Checking if: " + sentStudentNumber
+									+ " is a valid and exsisting student number... \n");
+
 							// Actually send over the student number to the server
 							toServer.writeInt(sentStudentNumber);
-							
+
 							// Wipe the previouslly sent value so we send and recieve more values
 							toServer.flush();
 
 							// Get the log in status from the server
 							Boolean loginStatus = fromServer.readBoolean();
-							
+
 							// Tell the user if they are logged in or not
 							if (loginStatus == true) {
 								// Log in has been sucessfully
@@ -146,13 +153,17 @@ public class ClientA2 extends JFrame {
 								String userName = fromServer.readUTF();
 								// Display a pop to let the user know they are logged in
 								final JPanel newClientPanel = new JPanel();
-								JOptionPane.showMessageDialog(newClientPanel, ("Welcome " + userName + " you are now logged in and are now connected to the Server!"),
+								JOptionPane.showMessageDialog(newClientPanel,
+										("Welcome " + userName
+												+ " you are now logged in and are now connected to the Server!"),
 										"Student number not found!", JOptionPane.INFORMATION_MESSAGE);
 								// Display a message to let the user know they are logged in
-								statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
+								statusView.append("Welcome " + userName
+										+ " you are now logged in and are now connected to the Server!" + '\n');
 								// Set the status to logged in with their name
 								lblStatus.setText("Status: Logged In As " + userName);
-								// Disable the login button so it cant be pressed again which would cause problems
+								// Disable the login button so it cant be pressed again which would cause
+								// problems
 								btnLogin.setEnabled(false);
 								// Enable the logout button so the user can press it
 								btnLogout.setEnabled(true);
@@ -162,55 +173,68 @@ public class ClientA2 extends JFrame {
 									// Define what happens when the Logout button is pressed
 									public void actionPerformed(ActionEvent e) {
 										try {
-											// Send over the LOGOUT_CODE which lets the Server know the user wants log out
+											// Send over the LOGOUT_CODE which lets the Server know the user wants log
+											// out
 											toServer.writeInt(LOGOUT_CODE);
 											// Wipe the statusView text
 											statusView.setText("");
 											// Let the user they are logged out
-											statusView.append(userName + " you are now logged out and are now disconnected from the Server!" + '\n');
+											statusView.append(userName
+													+ " you are now logged out and are now disconnected from the Server!"
+													+ '\n');
 											// Set the label status to logged out
 											lblStatus.setText("Status: Logged Out");
 											// enable the login button so they log in again
 											btnLogin.setEnabled(true);
-											// disable the logout button so it cant be pressed again which would cause problems
+											// disable the logout button so it cant be pressed again which would cause
+											// problems
 											btnLogout.setEnabled(false);
 											// Wipe the enteredStudentNumber text
 											enteredStudentNumber.setText("");
 										} catch (IOException logoutError) {
 											final JPanel ioErrorPan = new JPanel();
-											JOptionPane.showMessageDialog(ioErrorPan, "There was an problem logging out! Error: " + logoutError.getMessage(),
+											JOptionPane.showMessageDialog(ioErrorPan,
+													"There was an problem logging out! Error: "
+															+ logoutError.getMessage(),
 													"Logout Error!", JOptionPane.ERROR_MESSAGE);
-											System.err.println("There was an problem logging out! Error: : " + logoutError.getMessage());
+											System.err.println("There was an problem logging out! Error: : "
+													+ logoutError.getMessage());
 											logoutError.printStackTrace();
 										}
 									}
 								});
-								
+
 							} else if (loginStatus == false) {
 								// Student number entered by the user not found in the database by the Server
-								// Display a pop up and add a message to the statusView to let the user know they need to try again
+								// Display a pop up and add a message to the statusView to let the user know
+								// they need to try again
 								statusView.append("Student number not found! Log in failed - please try again." + '\n');
 								final JPanel newClientPanel = new JPanel();
-								JOptionPane.showMessageDialog(newClientPanel, "Student number not found! Log in failed - please try again!",
+								JOptionPane.showMessageDialog(newClientPanel,
+										"Student number not found! Log in failed - please try again!",
 										"Student number not found!", JOptionPane.INFORMATION_MESSAGE);
 								// enable the login button so they log in again
 								btnLogin.setEnabled(true);
-								// disable the logout button so it cant be pressed again which would cause problems
+								// disable the logout button so it cant be pressed again which would cause
+								// problems
 								btnLogout.setEnabled(false);
 								// set the enteredStudentNumber to blank so the user can try again
 								enteredStudentNumber.setText("");
 							}
-							
+
 						} else {
-							// Handle if a user enters a invalid student number and display what they need to do
+							// Handle if a user enters a invalid student number and display what they need
+							// to do
 							final JPanel newClientPanel = new JPanel();
-							JOptionPane.showMessageDialog(newClientPanel, "Invalid Student Numbered Entered! Must Be A Number and 8 characters long (Eg: 12345678) ",
+							JOptionPane.showMessageDialog(newClientPanel,
+									"Invalid Student Numbered Entered! Must Be A Number and 8 characters long (Eg: 12345678) ",
 									"Invalid Student Numbered Entered!", JOptionPane.INFORMATION_MESSAGE);
-							statusView.append("Invalid Student Numbered Entered! Must Be A Number and 8 characters long (Eg: 12345678) \n");
+							statusView.append(
+									"Invalid Student Numbered Entered! Must Be A Number and 8 characters long (Eg: 12345678) \n");
 							// set the enteredStudentNumber back to blank so the user can try again
 							enteredStudentNumber.setText("");
 						}
-						
+
 					} catch (IOException ex) {
 						// Handle IOException errors and display them in a pop on the users screen
 						// aswell as in the console
@@ -221,7 +245,7 @@ public class ClientA2 extends JFrame {
 						System.err.println("There was an IOException! Error: " + ex.getMessage());
 						ex.printStackTrace();
 					}
-					
+
 				}
 			});
 			// Set the ActionListener for the btnExit
@@ -235,15 +259,14 @@ public class ClientA2 extends JFrame {
 						// Handle an IOException when the exit button is pressed
 						exitError.printStackTrace();
 						final JPanel ioErrorPan = new JPanel();
-						JOptionPane.showMessageDialog(ioErrorPan, "There was a probelm exiting! Error: " + exitError.getMessage(),
-								"Exit Error!", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(ioErrorPan,
+								"There was a probelm exiting! Error: " + exitError.getMessage(), "Exit Error!",
+								JOptionPane.ERROR_MESSAGE);
 						System.err.println("There was a probelm exiting! Error: " + exitError.getMessage());
 						exitError.printStackTrace();
 					}
 				}
 			});
-			
-
 
 		} catch (IOException ex) {
 			// Handle IOException errors and display them in a pop on the users screen
