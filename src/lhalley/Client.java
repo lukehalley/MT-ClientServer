@@ -99,15 +99,19 @@ public class Client extends JFrame {
 						// Get the log in status from the server
 						Boolean loginStatus = fromServer.readBoolean();
 						
-						String userName = fromServer.readUTF();
-
+						System.out.println("GOT BACK: " + loginStatus);
+						
 						// Tell the user if they are logged in or not
-						if (loginStatus) {
+						if (loginStatus == true) {
+							String userName = fromServer.readUTF();
+							System.out.println("GOT USER: " + userName);
 							statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
 							lblStatus.setText("Status: Logged In");
 							btnLogin.setEnabled(false);
-						} else {
+						} else if (loginStatus == false) {
+							System.out.println("Student number not found! Log in failed - please try again.\" + '\\n");
 							statusView.append("Student number not found! Log in failed - please try again." + '\n');
+							btnLogin.setEnabled(true);
 						}
 
 					} catch (IOException ex) {

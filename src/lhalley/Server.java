@@ -239,29 +239,22 @@ class ClientHandler extends Thread {
 				ids.add(rs.getString(2));
 			}
 			
-			while (true) {
+			
+			
+			while (s.isConnected()) {
 				// Receive radius from the client
 				int recievedStudentNum = dis.readInt();
 				String sn = Integer.toString(recievedStudentNum);
 				String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
 				ResultSet r = statement.executeQuery(getUserByStNum);
-				System.out.println(r);
-				
-			    // checking if ResultSet is empty
-			    // if (r.next() == false) {
-			    //  System.out.println("ResultSet in empty in Java");
-			    //  }
-				
 				if (r.next() == false) {
 					loginStatus = false;
 					dos.writeBoolean(loginStatus);
-					System.out.println("No data");
-					s.close();
+					System.out.println("Student does NOT exsist in database, login unsucessfull");
+//					s.close();
 					dbConnection.close();
-					break;
 				} else {
 					System.out.println("data");
-					r.next();
 					String customerSTUDID = r.getString("STUD_ID");
 					String customerFNAME = r.getString("FNAME");
 					String customerSNAME = r.getString("SNAME");
@@ -296,82 +289,11 @@ class ClientHandler extends Thread {
 			}
 			
 		} catch (SQLException e) {
+			System.out.println("TESTER No data");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		
-//		while (true) {
-//			
-//			try {
-//
-//				// Get all student IDs
-//				String getAllStudentIDs = "SELECT * FROM " + studentTable;
-//				
-//				try {
-//					
-//					// Getting the connection
-//					dbConnection = getConnection();
-//					// Begin creation of the db statement before executing command
-//					statement = dbConnection.createStatement();
-//					ResultSet rs = statement.executeQuery(getAllStudentIDs);
-//
-//					ArrayList<String> ids = new ArrayList<String>();
-//
-//					while (rs.next()) {
-//						ids.add(rs.getString(2));
-//					}
-//
-//					// Receive radius from the client
-//					int recievedStudentNum = dis.readInt();
-//
-//					String sn = Integer.toString(recievedStudentNum);
-//
-//					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
-//
-//					ResultSet r = statement.executeQuery(getUserByStNum);
-//					r.next();
-//					String customerSTUDID = r.getString("STUD_ID");
-//					String customerFNAME = r.getString("FNAME");
-//					String customerSNAME = r.getString("SNAME");
-//					String customerNAME = customerFNAME + " " + customerSNAME;
-//
-//					// Compute area
-//					boolean loginStatus;
-//
-//					JTextArea serverStat = panel.getServerStatus();
-//					JTextArea currStudName = panel.getCurrentStudentName();
-//					JTextArea currStudNum = panel.getCurrentStudentNumber();
-//
-//					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-//
-//					if (ids.contains(sn)) {
-//						loginStatus = true;
-//						serverStat.append(
-//								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-//						currStudNum.append(customerSTUDID);
-//						currStudName.append(customerNAME);
-//						try {
-//							dos.writeBoolean(loginStatus);
-//							dos.writeUTF(customerNAME);
-//						} catch (IOException e1) {
-//							e1.printStackTrace();
-//						}
-//					} else {
-//						loginStatus = false;
-//						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-//						s.close();
-//						dbConnection.close();
-//					}
-//				} catch (SQLException e) {
-//					e.printStackTrace();
-//				}
-//				
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
 
 	}
 }
