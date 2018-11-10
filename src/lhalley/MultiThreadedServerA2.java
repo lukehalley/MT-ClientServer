@@ -20,6 +20,7 @@ class BuildGUI extends JFrame {
 	JTextArea currentStudentNumber;
 	JLabel currentStudentNameLabel;
 	JTextArea currentStudentName;
+	
 
 	public BuildGUI() {
 
@@ -131,7 +132,7 @@ class BuildGUI extends JFrame {
 }
 
 //Server class 
-public class Server {
+public class MultiThreadedServerA2 {
 	private static ServerSocket ss;
 
 	public static void main(String[] args) throws IOException {
@@ -204,9 +205,8 @@ class ClientHandler extends Thread {
 	@Override
 	public void run() {
 		
-
-		
 		BuildGUI panel = new BuildGUI();
+		int LOGOUT_CODE = 0000;
 
 		JTextArea serverStatus = new JTextArea();
 		serverStatus.setBounds(10, 11, 370, 239);
@@ -238,55 +238,65 @@ class ClientHandler extends Thread {
 			while (rs.next()) {
 				ids.add(rs.getString(2));
 			}
-			
 			while (true) {
 				// Receive radius from the client
 				int recievedStudentNum = dis.readInt();
-				String sn = Integer.toString(recievedStudentNum);
-				String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
-				ResultSet r = statement.executeQuery(getUserByStNum);
-				if (r.next() == false) {
-					// Compute area
+				
+				if (recievedStudentNum != 0) {
+					String sn = Integer.toString(recievedStudentNum);
+					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+					ResultSet r = statement.executeQuery(getUserByStNum);
+					if (r.next() == false) {
+						// Compute area
+						JTextArea serverStat = panel.getServerStatus();
+						JTextArea currStudName = panel.getCurrentStudentName();
+						JTextArea currStudNum = panel.getCurrentStudentNumber();
+						loginStatus = false;
+						dos.writeBoolean(loginStatus);
+						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						currStudName.setText("N/A");
+						currStudNum.setText("N/A");
+					} else {
+						String customerSTUDID = r.getString("STUD_ID");
+						String customerFNAME = r.getString("FNAME");
+						String customerSNAME = r.getString("SNAME");
+						String customerNAME = customerFNAME + " " + customerSNAME;
+						// Compute area
+						JTextArea serverStat = panel.getServerStatus();
+						JTextArea currStudName = panel.getCurrentStudentName();
+						JTextArea currStudNum = panel.getCurrentStudentNumber();
+						serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
+						// Check log in
+						if (ids.contains(sn)) {
+							loginStatus = true;
+							serverStat.append(
+									"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+							currStudNum.setText(customerSTUDID);
+							currStudName.setText(customerNAME);
+							try {
+								dos.writeBoolean(loginStatus);
+								dos.writeUTF(customerNAME);
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+						} else {
+							loginStatus = false;
+							serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+							s.close();
+							dbConnection.close();
+						}
+					}
+				} else if (recievedStudentNum == LOGOUT_CODE) {
 					JTextArea serverStat = panel.getServerStatus();
 					JTextArea currStudName = panel.getCurrentStudentName();
 					JTextArea currStudNum = panel.getCurrentStudentNumber();
 					loginStatus = false;
-					dos.writeBoolean(loginStatus);
-					serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+					serverStat.setText("");
+					serverStat.append("Student has logged out!" + '\n');
 					currStudName.setText("N/A");
 					currStudNum.setText("N/A");
-//					s.close();
-//					dbConnection.close();
-				} else {
-					String customerSTUDID = r.getString("STUD_ID");
-					String customerFNAME = r.getString("FNAME");
-					String customerSNAME = r.getString("SNAME");
-					String customerNAME = customerFNAME + " " + customerSNAME;
-					// Compute area
-					JTextArea serverStat = panel.getServerStatus();
-					JTextArea currStudName = panel.getCurrentStudentName();
-					JTextArea currStudNum = panel.getCurrentStudentNumber();
-					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-					// Check log in
-					if (ids.contains(sn)) {
-						loginStatus = true;
-						serverStat.append(
-								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-						currStudNum.setText(customerSTUDID);
-						currStudName.setText(customerNAME);
-						try {
-							dos.writeBoolean(loginStatus);
-							dos.writeUTF(customerNAME);
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-					} else {
-						loginStatus = false;
-						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-						s.close();
-						dbConnection.close();
-					}
 				}
+
 			}
 			
 		} catch (SQLException e) {

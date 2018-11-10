@@ -7,22 +7,23 @@ import java.awt.event.*;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
-public class Client extends JFrame {
+public class ClientA2 extends JFrame {
 
 	// IO streams
 	private DataOutputStream toServer;
 	private DataInputStream fromServer;
 	private JTextField enteredStudentNumber;
+	
 
 	String add = "localhost";
 	int port = 8000;
+	int LOGOUT_CODE = 0000;
 
 	public static void main(String[] args) {
-		new Client();
+		new ClientA2();
 	}
 
-	@SuppressWarnings("resource")
-	public Client() {
+	public ClientA2() {
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
 		JPanel p = new JPanel();
@@ -57,11 +58,16 @@ public class Client extends JFrame {
 		getContentPane().add(lblStatus);
 		
 		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(379, 11, 95, 23);
+		btnExit.setBounds(379, 257, 95, 23);
 		getContentPane().add(btnExit);
+		
+		JButton btnLogout = new JButton("Logout");
+		btnLogout.setBounds(380, 11, 95, 23);
+		btnLogout.setEnabled(false);
+		getContentPane().add(btnLogout);
 
 		setTitle("Client");
-		setSize(534, 300);
+		setSize(495, 320);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		setResizable(false);
@@ -75,13 +81,6 @@ public class Client extends JFrame {
 
 			// Create an output stream to send data to the server
 			toServer = new DataOutputStream(socket.getOutputStream());
-
-			btnExit.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
 
 			btnLogin.addActionListener(new ActionListener() {
 				@Override
@@ -106,19 +105,49 @@ public class Client extends JFrame {
 							String userName = fromServer.readUTF();
 							System.out.println("GOT USER: " + userName);
 							statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
-							lblStatus.setText("Status: Logged In");
+							lblStatus.setText("Status: Logged In As " + userName);
 							btnLogin.setEnabled(false);
+							btnLogout.setEnabled(true);
+							btnLogout.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									try {
+										toServer.writeInt(0000);
+										socket.close();										
+										statusView.append(userName + " you are now logged out and are now disconnected from the Server!" + '\n');
+										lblStatus.setText("Status: Logged Out");
+										btnLogin.setEnabled(true);
+										enteredStudentNumber.setText("");
+									} catch (IOException e1) {
+										e1.printStackTrace();
+									}
+								}
+							});
+							
 						} else if (loginStatus == false) {
 							System.out.println("Student number not found! Log in failed - please try again.\" + '\\n");
 							statusView.append("Student number not found! Log in failed - please try again." + '\n');
 							btnLogin.setEnabled(true);
+							btnLogout.setEnabled(false);
 						}
 
 					} catch (IOException ex) {
 						System.err.println(ex);
 					}
+					
+
+					
 				}
 			});
+			
+			btnExit.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.exit(0);
+				}
+			});
+			
+
 
 		} catch (IOException ex) {
 			System.out.print(ex.toString() + '\n');
