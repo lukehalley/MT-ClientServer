@@ -204,9 +204,7 @@ class ClientHandler extends Thread {
 	@Override
 	public void run() {
 		
-		Connection dbConnection = null;
 
-		Statement statement = null;
 		
 		BuildGUI panel = new BuildGUI();
 
@@ -226,6 +224,8 @@ class ClientHandler extends Thread {
 		panel.setCurrentStudentName(currentStudentName);
 		
 		try {
+			Connection dbConnection = null;
+			Statement statement = null;
 			boolean loginStatus;
 			// Get all student IDs
 			String getAllStudentIDs = "SELECT * FROM " + studentTable;
@@ -239,40 +239,41 @@ class ClientHandler extends Thread {
 				ids.add(rs.getString(2));
 			}
 			
-			
-			
-			while (s.isConnected()) {
+			while (true) {
 				// Receive radius from the client
 				int recievedStudentNum = dis.readInt();
 				String sn = Integer.toString(recievedStudentNum);
 				String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
 				ResultSet r = statement.executeQuery(getUserByStNum);
 				if (r.next() == false) {
+					// Compute area
+					JTextArea serverStat = panel.getServerStatus();
+					JTextArea currStudName = panel.getCurrentStudentName();
+					JTextArea currStudNum = panel.getCurrentStudentNumber();
 					loginStatus = false;
 					dos.writeBoolean(loginStatus);
-					System.out.println("Student does NOT exsist in database, login unsucessfull");
+					serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+					currStudName.setText("N/A");
+					currStudNum.setText("N/A");
 //					s.close();
-					dbConnection.close();
+//					dbConnection.close();
 				} else {
-					System.out.println("data");
 					String customerSTUDID = r.getString("STUD_ID");
 					String customerFNAME = r.getString("FNAME");
 					String customerSNAME = r.getString("SNAME");
 					String customerNAME = customerFNAME + " " + customerSNAME;
-					
 					// Compute area
 					JTextArea serverStat = panel.getServerStatus();
 					JTextArea currStudName = panel.getCurrentStudentName();
 					JTextArea currStudNum = panel.getCurrentStudentNumber();
 					serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-
 					// Check log in
 					if (ids.contains(sn)) {
 						loginStatus = true;
 						serverStat.append(
 								"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
-						currStudNum.append(customerSTUDID);
-						currStudName.append(customerNAME);
+						currStudNum.setText(customerSTUDID);
+						currStudName.setText(customerNAME);
 						try {
 							dos.writeBoolean(loginStatus);
 							dos.writeUTF(customerNAME);
