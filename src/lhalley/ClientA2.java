@@ -18,6 +18,7 @@ public class ClientA2 extends JFrame {
 	String add = "localhost";
 	int port = 8000;
 	int LOGOUT_CODE = 0000;
+	String LOGOUT_CODE_STR = "0000";
 
 	public static void main(String[] args) {
 		new ClientA2();
@@ -45,12 +46,13 @@ public class ClientA2 extends JFrame {
 		getContentPane().add(separator);
 
 		JButton btnLogin = new JButton("Login");
-		btnLogin.setBounds(275, 11, 95, 23);
+		btnLogin.setBounds(494, 10, 95, 23);
 		getContentPane().add(btnLogin);
 
 		JTextArea statusView = new JTextArea();
-		statusView.setBounds(10, 79, 464, 171);
+		statusView.setBounds(10, 79, 684, 171);
 		statusView.setEditable(false);
+		statusView.setLineWrap(true);
 		getContentPane().add(statusView);
 
 		JLabel lblStatus = new JLabel("Status: Logged Out");
@@ -58,16 +60,16 @@ public class ClientA2 extends JFrame {
 		getContentPane().add(lblStatus);
 		
 		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(379, 257, 95, 23);
+		btnExit.setBounds(599, 261, 95, 23);
 		getContentPane().add(btnExit);
 		
 		JButton btnLogout = new JButton("Logout");
-		btnLogout.setBounds(380, 11, 95, 23);
+		btnLogout.setBounds(599, 10, 95, 23);
 		btnLogout.setEnabled(false);
 		getContentPane().add(btnLogout);
 
 		setTitle("Client");
-		setSize(495, 320);
+		setSize(710, 321);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		setResizable(false);
@@ -88,57 +90,60 @@ public class ClientA2 extends JFrame {
 					try {
 						statusView.setText("");
 						// Get the radius from the text field
-						int sentStudentNumber = Integer.parseInt(enteredStudentNumber.getText().trim());
-
-						statusView.append("Checking if: " + sentStudentNumber + " is a valid and exsisting student number... \n");
-						
-						// Send the radius to the server
-						toServer.writeInt(sentStudentNumber);
-						toServer.flush();
-
-						// Get the log in status from the server
-						Boolean loginStatus = fromServer.readBoolean();
-						
-						System.out.println("GOT BACK: " + loginStatus);
-						
-						// Tell the user if they are logged in or not
-						if (loginStatus == true) {
-							String userName = fromServer.readUTF();
-							System.out.println("GOT USER: " + userName);
-							statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
-							lblStatus.setText("Status: Logged In As " + userName);
-							btnLogin.setEnabled(false);
-							btnLogout.setEnabled(true);
-							btnLogout.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									try {
-										toServer.writeInt(0000);
-
-										statusView.setText("");
-										statusView.append(userName + " you are now logged out and are now disconnected from the Server!" + '\n');
-										lblStatus.setText("Status: Logged Out");
-										btnLogin.setEnabled(true);
-										btnLogout.setEnabled(false);
-										enteredStudentNumber.setText("");
-									} catch (IOException e1) {
-										e1.printStackTrace();
-									}
-								}
-							});
+						// Check student number entered is not a string
+						// ".*\\d+.*" = check its a number - 1234
+						if (enteredStudentNumber.getText().matches(".*\\d+.*") && enteredStudentNumber.getText().length() == 8 && !enteredStudentNumber.getText().matches(LOGOUT_CODE_STR)) {
 							
-						} else if (loginStatus == false) {
-							System.out.println("Student number not found! Log in failed - please try again.\" + '\\n");
-							statusView.append("Student number not found! Log in failed - please try again." + '\n');
-							btnLogin.setEnabled(true);
-							btnLogout.setEnabled(false);
-						}
+							int sentStudentNumber = Integer.parseInt(enteredStudentNumber.getText().trim());
 
+							statusView.append("Checking if: " + sentStudentNumber + " is a valid and exsisting student number... \n");
+							
+							// Send the radius to the server
+							toServer.writeInt(sentStudentNumber);
+							toServer.flush();
+
+							// Get the log in status from the server
+							Boolean loginStatus = fromServer.readBoolean();
+							
+							// Tell the user if they are logged in or not
+							if (loginStatus == true) {
+								String userName = fromServer.readUTF();
+								statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
+								lblStatus.setText("Status: Logged In As " + userName);
+								btnLogin.setEnabled(false);
+								btnLogout.setEnabled(true);
+								btnLogout.addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										try {
+											toServer.writeInt(0000);
+											statusView.setText("");
+											statusView.append(userName + " you are now logged out and are now disconnected from the Server!" + '\n');
+											lblStatus.setText("Status: Logged Out");
+											btnLogin.setEnabled(true);
+											btnLogout.setEnabled(false);
+											enteredStudentNumber.setText("");
+										} catch (IOException e1) {
+											e1.printStackTrace();
+										}
+									}
+								});
+								
+							} else if (loginStatus == false) {
+								System.out.println("Student number not found! Log in failed - please try again.\" + '\\n");
+								statusView.append("Student number not found! Log in failed - please try again." + '\n');
+								btnLogin.setEnabled(true);
+								btnLogout.setEnabled(false);
+							}
+							
+						} else {
+							statusView.append("Invalid Student Numbered Entered! Must Be A Number and 8 characters long (Eg: 12345678) \n");
+							enteredStudentNumber.setText("");
+						}
+						
 					} catch (IOException ex) {
 						System.err.println(ex);
 					}
-					
-
 					
 				}
 			});

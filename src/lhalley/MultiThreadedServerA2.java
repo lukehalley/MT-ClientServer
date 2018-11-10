@@ -21,7 +21,6 @@ class BuildGUI extends JFrame {
 	JLabel currentStudentNameLabel;
 	JTextArea currentStudentName;
 	
-
 	public BuildGUI() {
 
 		getContentPane().setLayout(null);
@@ -138,8 +137,6 @@ public class MultiThreadedServerA2 {
 	public static void main(String[] args) throws IOException {
 		ss = new ServerSocket(8000);
 
-		// running infinite loop for getting
-		// client request
 		while (true) {
 			
 			Socket s = null;
@@ -210,6 +207,7 @@ class ClientHandler extends Thread {
 
 		JTextArea serverStatus = new JTextArea();
 		serverStatus.setBounds(10, 11, 370, 239);
+		serverStatus.setEditable(false);
 		serverStatus.setEditable(false);
 		panel.setServerStatus(serverStatus);
 
@@ -282,7 +280,7 @@ class ClientHandler extends Thread {
 						} else {
 							loginStatus = false;
 							serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-							s.close();
+//							s.close();
 							dbConnection.close();
 						}
 					}
