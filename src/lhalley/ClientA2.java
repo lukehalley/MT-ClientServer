@@ -17,8 +17,8 @@ public class ClientA2 extends JFrame {
 
 	String add = "localhost";
 	int port = 8000;
-	int LOGOUT_CODE = 0000;
-	String LOGOUT_CODE_STR = "0000";
+	int LOGOUT_CODE = 00000000;
+	String LOGOUT_CODE_STR = "00000000";
 
 	public static void main(String[] args) {
 		new ClientA2();

@@ -47,9 +47,8 @@ class BuildGUI extends JFrame {
 		p.setLayout(new BorderLayout());
 		getContentPane().add(p);
 
-		// all the below components are for creating the temporary blank
+		// All the below components are for creating the temporary blank
 		// Server window before its filled with data
-		
 		JTextArea serverStatusTemp = new JTextArea();
 		serverStatusTemp.setBounds(10, 11, 370, 239);
 		serverStatusTemp.setEditable(false);
@@ -204,8 +203,6 @@ public class MultiThreadedServerA2 {
 				clientThread.start();
 
 			} catch (Exception e) {
-				// Print out error
-				
 				// Catch any errors and display them in a pop on the users screen aswell as in the console
 				final JPanel panel = new JPanel();
 				JOptionPane.showMessageDialog(panel, "Could not create new Thread for client! Error: " + e.getMessage(), "Client Thread Error!",JOptionPane.ERROR_MESSAGE);
@@ -265,7 +262,7 @@ class ClientHandler extends Thread {
 		// call our BuildGUI fucntion to build our blank window before its filled with data
 		BuildGUI panel = new BuildGUI();
 		// set the LOGOUT_CODE which is used to handle a logout request
-		int LOGOUT_CODE = 0000;
+		int LOGOUT_CODE = 00000000;
 
 		// creates the serverStatus JTextArea which shows the user of the Server who is logged in or if nobody is
 		JTextArea serverStatus = new JTextArea();
@@ -311,70 +308,114 @@ class ClientHandler extends Thread {
 			while (true) {
 				// Receive radius from the client
 				int recievedStudentNum = dataInputStr.readInt();
-				
 				// check if the student was the LOGOUT_CODE, if not its a user logging in
 				if (recievedStudentNum != LOGOUT_CODE) {
+					// convert the recieved student number into an int
 					String sn = Integer.toString(recievedStudentNum);
+					// create the query string for selecting a single user by their id
 					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
+					// execute the above query
 					ResultSet r = statement.executeQuery(getUserByStNum);
+					
+					// if the result set comes back empty we can assume the student id doesnt not exsist in the database
+					// in whcih case we return the message that the log in has been unsucessfull
 					if (r.next() == false) {
-						// Compute area
+						// get the serverStat, currStudName and currStudNum fields form the panel to set them
 						JTextArea serverStat = panel.getServerStatus();
 						JTextArea currStudName = panel.getCurrentStudentName();
 						JTextArea currStudNum = panel.getCurrentStudentNumber();
+						// set the loginStatus boolean to false as log in has been unsucessfull
 						loginStatus = false;
+						// send the loginStatus boolean back to client which logic will translate to a login which has been unsucessfull
 						dataOutputStr.writeBoolean(loginStatus);
-						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
+						// send a message over to the client to let them know that the Student ID does NOT exsist in database, login unsucessfull
+						serverStat.append("Student ID does NOT exsist in database, login unsucessfull" + '\n');
+						// set both the currStudName and currStudNum to N/A as the login was unsucessfull
 						currStudName.setText("N/A");
 						currStudNum.setText("N/A");
 					} else {
+						// in this case the result set contained SOMETHING - we dont know for SURE if this is a user but it more than likely is
+						// We then extract the data we need to display in the Server window from the result set
 						String customerSTUDID = r.getString("STUD_ID");
 						String customerFNAME = r.getString("FNAME");
 						String customerSNAME = r.getString("SNAME");
 						String customerNAME = customerFNAME + " " + customerSNAME;
-						// Compute area
+						// get the serverStat, currStudName and currStudNum fields form the panel to set them
 						JTextArea serverStat = panel.getServerStatus();
 						JTextArea currStudName = panel.getCurrentStudentName();
 						JTextArea currStudNum = panel.getCurrentStudentNumber();
+						// clear the serverStat field
 						serverStat.setText("");
+						// let the Server user what number was sent over
 						serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
-						// Check log in
+						// Check if the recieved student number is in the array which contains all the ids in the database.
 						if (ids.contains(sn)) {
+							// Login has been sucessfull a the recieved student number matched with a id in the ids array
+							// set the login status to the true
 							loginStatus = true;
+							// let the Server user know who is logged in student id
 							serverStat.append(
 									"Student '" + customerNAME + "' is now logged in and connected to the Server " + '\n');
+							// set the customerSTUDID and customerNAME to the id and name of the stduent in the database
 							currStudNum.setText(customerSTUDID);
 							currStudName.setText(customerNAME);
 							try {
+								// send the loginStatus boolean back to client which logic will translate to a login which has been sucessfull 
 								dataOutputStr.writeBoolean(loginStatus);
+								// send a message over to the client so we can display the clients name in their panel
 								dataOutputStr.writeUTF(customerNAME);
 							} catch (IOException e1) {
-								e1.printStackTrace();
+								// Catch any errors and display them in a pop on the users screen aswell as in the console
+								final JPanel loginSendPan = new JPanel();
+								JOptionPane.showMessageDialog(loginSendPan, "Could not send login status and student name to client! Error: " + e1.getMessage(), "Login Sucessfull Send Error!",JOptionPane.ERROR_MESSAGE);
+								System.err.println("Could not send login status and student name to client! Error " + e1.getMessage());
 							}
 						} else {
+							// set the loginStatus boolean to false as log in has been unsucessfull
 							loginStatus = false;
+							// send a message over to the client to let them know that the Student ID does NOT exsist in database, login unsucessfull
 							serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
-//							s.close();
+							// close the socket connection - I have commented this out as I was unable to find a way to restart the socket once I stopped it or start a new one when needed
+							// s.close();
+							// close the connection to the SQL database
 							dbConnection.close();
 						}
 					}
+				// Handles a logout request, if the student number sent over is equal to the LOGOUT_CODE (highly reccomend keeping it at 00000000 as my code in the client class assumes this by default)
 				} else if (recievedStudentNum == LOGOUT_CODE) {
+					// get the serverStat, currStudName and currStudNum fields form the panel to set them
 					JTextArea serverStat = panel.getServerStatus();
 					JTextArea currStudName = panel.getCurrentStudentName();
 					JTextArea currStudNum = panel.getCurrentStudentNumber();
+					// set the loginStatus boolean to false as the client has logged out
 					loginStatus = false;
+					// setting the serverStat field to blank
 					serverStat.setText("");
+					// letting the server user the current client has logged out
 					serverStat.append("Student has logged out!" + '\n');
+					// set both the currStudName and currStudNum to N/A as the client has logged out
 					currStudName.setText("N/A");
 					currStudNum.setText("N/A");
+				} else {
+					// Handle any number which does not match the above logic - this should never be entered but
+					// placing it here to cover all areas
+					final JPanel loginSendPan = new JPanel();
+					JOptionPane.showMessageDialog(loginSendPan, "Invalid Student Number Sent By Client!", "Invalid Student Number Sent!", JOptionPane.ERROR_MESSAGE);
+					System.err.println("Invalid Student Number Sent!");
 				}
-
 			}
 			
 		} catch (SQLException e) {
-			System.out.println("TESTER No data");
+			// Handle SQL errors and display them in a pop on the users screen aswell as in the console
+			final JPanel sqlErrorPan = new JPanel();
+			JOptionPane.showMessageDialog(sqlErrorPan, "There was a problem with the database! Error: " + e.getMessage(), "Database Error!",JOptionPane.ERROR_MESSAGE);
+			System.err.println("There was a problem with the database! Error: " + e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
+			// Handle IOException errors and display them in a pop on the users screen aswell as in the console
+			final JPanel ioErrorPan = new JPanel();
+			JOptionPane.showMessageDialog(ioErrorPan, "There was an IOException! Error: " + e.getMessage(), "IOException Error!",JOptionPane.ERROR_MESSAGE);
+			System.err.println("There was an IOException! Error: " + e.getMessage());
 			e.printStackTrace();
 		}
 
