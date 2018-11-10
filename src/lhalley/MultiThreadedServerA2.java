@@ -36,7 +36,7 @@ class BuildGUI extends JFrame {
 	JLabel currentStudentNameLabel;
 	JTextArea currentStudentName;
 
-	// Method which adds components to panel, sets their relavent paramaters etc.
+	// Method which adds components to Server panel, sets their relavent paramaters etc.
 	// using .setEditable(false); to stop user removing text from the gui
 	public BuildGUI() {
 

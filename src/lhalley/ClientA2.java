@@ -64,7 +64,7 @@ public class ClientA2 extends JFrame {
 		lblStudentId.setBounds(10, 50, 98, 14);
 		getContentPane().add(lblStudentId);
 		
-		JTextArea lblStudentGuide = new JTextArea("Enter Only Numbers, Must Be 8 Characters, Greater Than 00000001 - Example: 12345678");
+		JTextArea lblStudentGuide = new JTextArea("Enter Only Numbers, Must Be 8 Characters, Greater or Equal To 00000001 - Example: 12345678");
 		lblStudentGuide.setEditable(false);
 		lblStudentGuide.setBounds(10, 11, 684, 20);
 		getContentPane().add(lblStudentGuide);
@@ -142,9 +142,12 @@ public class ClientA2 extends JFrame {
 							// Tell the user if they are logged in or not
 							if (loginStatus == true) {
 								// Log in has been sucessfully
-								
 								// Get the clients name so we can display it in the panel and use it below
 								String userName = fromServer.readUTF();
+								// Display a pop to let the user know they are logged in
+								final JPanel newClientPanel = new JPanel();
+								JOptionPane.showMessageDialog(newClientPanel, ("Welcome " + userName + " you are now logged in and are now connected to the Server!"),
+										"Student number not found!", JOptionPane.INFORMATION_MESSAGE);
 								// Display a message to let the user know they are logged in
 								statusView.append("Welcome " + userName + " you are now logged in and are now connected to the Server!" + '\n');
 								// Set the status to logged in with their name
@@ -194,6 +197,8 @@ public class ClientA2 extends JFrame {
 								btnLogin.setEnabled(true);
 								// disable the logout button so it cant be pressed again which would cause problems
 								btnLogout.setEnabled(false);
+								// set the enteredStudentNumber to blank so the user can try again
+								enteredStudentNumber.setText("");
 							}
 							
 						} else {
