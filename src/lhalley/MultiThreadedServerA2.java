@@ -28,7 +28,7 @@ import javax.swing.*;
 // Class which is used to build the Server's GUI 
 class BuildGUI extends JFrame {
 
-	// Creating/Initialising all the JSwing components
+	// Initialising all the JSwing components
 	JTextArea serverStatus;
 	JTextPane serverTitle;
 	JLabel currentStudentNumberLabel;
