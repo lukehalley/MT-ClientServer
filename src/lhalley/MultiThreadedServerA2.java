@@ -456,13 +456,10 @@ class ClientHandler extends Thread {
 			System.err.println("There was a problem with the database! Error: " + e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
-			// Handle IOException errors and display them in a pop on the users screen
-			// aswell as in the console
+			// Handle if a user exits without logging out or just shuts down their window
 			final JPanel ioErrorPan = new JPanel();
-			JOptionPane.showMessageDialog(ioErrorPan, "There was an IOException! Error: " + e.getMessage(),
-					"IOException Error!", JOptionPane.ERROR_MESSAGE);
-			System.err.println("There was an IOException! Error: " + e.getMessage());
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(ioErrorPan, "Client Has Exited Without Logging Out",
+					"Client Exit!", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 }
