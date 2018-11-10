@@ -1,5 +1,6 @@
 # MT-ClientServer
-## Multithreaded Client/Server - Student Database - Dist Systems
+## Distributed Systems Assignment 2
+## Multithreaded Client/Server which interacts with a SQL Database with JDBC
 
 ### Client part of the Multithreaded Client/Server Java application
 The client connects to the Server on startup which is placed in a new thread. The use can then enter a 8 digit student number
