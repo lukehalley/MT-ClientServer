@@ -33,43 +33,48 @@ public class ClientA2 extends JFrame {
 		getContentPane().add(p);
 
 		enteredStudentNumber = new JTextField();
-		enteredStudentNumber.setBounds(110, 11, 155, 20);
+		enteredStudentNumber.setBounds(118, 47, 264, 20);
 		getContentPane().add(enteredStudentNumber);
 		enteredStudentNumber.setColumns(10);
 
-		JLabel lblStudentId = new JLabel("Student Number:");
-		lblStudentId.setBounds(10, 14, 128, 14);
+		JLabel lblStudentId = new JLabel("Student Number: ");
+		lblStudentId.setBounds(10, 50, 98, 14);
 		getContentPane().add(lblStudentId);
+		
+		JTextArea lblStudentGuide = new JTextArea("Enter Only Numbers, Must Be 8 Characters, Greater Than 00000001 - Example: 12345678");
+		lblStudentGuide.setEditable(false);
+		lblStudentGuide.setBounds(10, 11, 684, 20);
+		getContentPane().add(lblStudentGuide);
 
 		JSeparator separator = new JSeparator();
-		separator.setBounds(0, 42, 754, 14);
+		separator.setBounds(0, 80, 754, 14);
 		getContentPane().add(separator);
 
 		JButton btnLogin = new JButton("Login");
-		btnLogin.setBounds(494, 10, 95, 23);
+		btnLogin.setBounds(494, 46, 95, 23);
 		getContentPane().add(btnLogin);
 
 		JTextArea statusView = new JTextArea();
-		statusView.setBounds(10, 79, 684, 171);
+		statusView.setBounds(10, 115, 684, 186);
 		statusView.setEditable(false);
 		statusView.setLineWrap(true);
 		getContentPane().add(statusView);
 
 		JLabel lblStatus = new JLabel("Status: Logged Out");
-		lblStatus.setBounds(10, 54, 464, 14);
+		lblStatus.setBounds(10, 92, 464, 14);
 		getContentPane().add(lblStatus);
 		
 		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(599, 261, 95, 23);
+		btnExit.setBounds(599, 312, 95, 23);
 		getContentPane().add(btnExit);
 		
 		JButton btnLogout = new JButton("Logout");
-		btnLogout.setBounds(599, 10, 95, 23);
+		btnLogout.setBounds(599, 46, 95, 23);
 		btnLogout.setEnabled(false);
 		getContentPane().add(btnLogout);
 
 		setTitle("Client");
-		setSize(710, 321);
+		setSize(710, 375);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		setResizable(false);

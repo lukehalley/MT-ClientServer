@@ -1,5 +1,18 @@
+// Luke Halley
+// 20071820
+// luke123halley@gmail.com
+// 
+// Server part of the Multithreaded Client/Server Java application
+// 
+// The server only accepts requests from registered students. The client (code for this in the other class ClientA2.java) enters their StudentID and
+// submits request to the Server. The server creates a new thread for the client and validates that the
+// Student exists in a database table. Invalid logins will result in an appropriate message being sent to
+// the client and the socket is closed.
+
+// set lhalley package
 package lhalley;
 
+// importing relavent librarys for usage in this class
 import java.io.*;
 import java.net.*;
 import java.sql.Connection;
@@ -12,33 +25,41 @@ import java.awt.*;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
+// Class which is used to build the Server's GUI 
 class BuildGUI extends JFrame {
 
+	// Creating/Initialising all the JSwing components
 	JTextArea serverStatus;
-	JTextPane clientTitle;
+	JTextPane serverTitle;
 	JLabel currentStudentNumberLabel;
 	JTextArea currentStudentNumber;
 	JLabel currentStudentNameLabel;
 	JTextArea currentStudentName;
 	
+	// Method which adds components to panel, sets their relavent paramaters etc.
+	// using .setEditable(false); to stop user removing text from the gui
 	public BuildGUI() {
-
+		
+		// setting the window
 		getContentPane().setLayout(null);
 		// Panel p to hold the label and text field
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout());
 		getContentPane().add(p);
 
+		// all the below components are for creating the temporary blank
+		// Server window before its filled with data
+		
 		JTextArea serverStatusTemp = new JTextArea();
 		serverStatusTemp.setBounds(10, 11, 370, 239);
 		serverStatusTemp.setEditable(false);
 		getContentPane().add(serverStatusTemp);
 
-		JTextPane clientTitle = new JTextPane();
-		clientTitle.setText("WIT Student Login");
-		clientTitle.setEditable(false);
-		clientTitle.setBounds(390, 11, 284, 20);
-		getContentPane().add(clientTitle);
+		JTextPane serverTitle = new JTextPane();
+		serverTitle.setText("WIT Student Login");
+		serverTitle.setEditable(false);
+		serverTitle.setBounds(390, 11, 284, 20);
+		getContentPane().add(serverTitle);
 
 		JLabel currentStudentNumberLabel = new JLabel("Student Number");
 		currentStudentNumberLabel.setBounds(390, 42, 284, 20);
@@ -58,6 +79,7 @@ class BuildGUI extends JFrame {
 		currentStudentNameTemp.setBounds(390, 135, 284, 20);
 		getContentPane().add(currentStudentNameTemp);
 
+		// sets the various needed paramaters to display the widow in the correct way
 		setTitle("Server");
 		setBackground(Color.WHITE);
 		setSize(700, 300);
@@ -68,60 +90,72 @@ class BuildGUI extends JFrame {
 
 	}
 
+	// get the server status JTextArea field
 	public JTextArea getServerStatus() {
 		return serverStatus;
 	}
 
+	// set the server status setServerStatus field
 	public void setServerStatus(JTextArea serverStat) {
 		this.serverStatus = serverStat;
 		getContentPane().add(serverStat);
 		getContentPane().repaint();
 	}
 
+	// get the client title JTextArea field
 	public JTextPane getClientTitle() {
-		return clientTitle;
+		return serverTitle;
 	}
-
-	public void setClientTitle(JTextPane clientTitle) {
-		this.clientTitle = clientTitle;
-		getContentPane().add(clientTitle);
+	
+	// set the client title JTextArea field
+	public void setClientTitle(JTextPane serverTitle) {
+		this.serverTitle = serverTitle;
+		getContentPane().add(serverTitle);
 		getContentPane().repaint();
 	}
 
+	// get the current student label
 	public JLabel getCurrentStudentNumberLabel() {
 		return currentStudentNumberLabel;
 	}
 
+	// set the current student label
 	public void setCurrentStudentNumberLabel(JLabel currentStudentNumberLabel) {
 		this.currentStudentNumberLabel = currentStudentNumberLabel;
 		getContentPane().add(currentStudentNumberLabel);
 		getContentPane().repaint();
 	}
 
+	// get the getCurrentStudentNumber JTextArea
 	public JTextArea getCurrentStudentNumber() {
 		return currentStudentNumber;
 	}
 
+	// set the setCurrentStudentNumber JTextArea
 	public void setCurrentStudentNumber(JTextArea currentStudentNumber) {
 		this.currentStudentNumber = currentStudentNumber;
 		getContentPane().add(currentStudentNumber);
 		getContentPane().repaint();
 	}
 
+	// get the getCurrentStudentNameLabel JLabel
 	public JLabel getCurrentStudentNameLabel() {
 		return currentStudentNameLabel;
 	}
 
+	// set the getCurrentStudentNameLabel JLabel
 	public void setCurrentStudentNameLabel(JLabel currentStudentNameLabel) {
 		this.currentStudentNameLabel = currentStudentNameLabel;
 		getContentPane().add(currentStudentNameLabel);
 		getContentPane().repaint();
 	}
 
+	// get the getCurrentStudentName JTextArea
 	public JTextArea getCurrentStudentName() {
 		return currentStudentName;
 	}
 
+	// set the getCurrentStudentName JTextArea
 	public void setCurrentStudentName(JTextArea currentStudentName) {
 		this.currentStudentName = currentStudentName;
 		getContentPane().add(currentStudentName);
@@ -130,48 +164,73 @@ class BuildGUI extends JFrame {
 
 }
 
-//Server class 
+// Server main class which creates:
+// a Socket,
+// a DataInputStream on that socket
+// and a DataOutputStream on that socket.
+//  The above three are sent to the ClientHandler function in a new thread
 public class MultiThreadedServerA2 {
-	private static ServerSocket ss;
+	// Initialising server socket
+	private static ServerSocket serverSocket;
+	// Creating varible for port making it easy to change it and refactor the code for other usage
+	static int port = 8000;
 
+	// Main method which runs when class is started
 	public static void main(String[] args) throws IOException {
-		ss = new ServerSocket(8000);
+		// create a ServerSocket on the port defined in the 'port' variable
+		serverSocket = new ServerSocket(port);
 
+		// infinite loop to receive incoming client requests
 		while (true) {
-			
-			Socket s = null;
+			// Initialising socket to use with client
+			Socket socket = null;
 
 			try {
 				// socket object to receive incoming client requests
-				s = ss.accept();
+				socket = serverSocket.accept();
 
-				System.out.println("A new client is connected : " + s);
+				// Creates pop to allow the user of the server window that a client has connected
+				final JPanel newClientPanel = new JPanel();
+				JOptionPane.showMessageDialog(newClientPanel, "A new client is connected : " + socket , "New Client Connected!", JOptionPane.INFORMATION_MESSAGE);
 
 				// obtaining input and out streams
-				DataInputStream dis = new DataInputStream(s.getInputStream());
-				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+				DataInputStream dataInputStr = new DataInputStream(socket.getInputStream());
+				DataOutputStream dataOutputStr = new DataOutputStream(socket.getOutputStream());
 
-				System.out.println("Assigning new thread for this client");
+				// create a new thread object and pass the Socket, DataInputStream and DataOutputStream
+				Thread clientThread = new ClientHandler(socket, dataInputStr, dataOutputStr);
 
-				// create a new thread object
-				Thread t = new ClientHandler(s, dis, dos);
-
-				// Invoking the start() method
-				t.start();
+				// Start the thread that was just created above
+				clientThread.start();
 
 			} catch (Exception e) {
-				s.close();
-				e.printStackTrace();
+				// Print out error
+				
+				// Catch any errors and display them in a pop on the users screen aswell as in the console
+				final JPanel panel = new JPanel();
+				JOptionPane.showMessageDialog(panel, "Could not create new Thread for client! Error: " + e.getMessage(), "Client Thread Error!",JOptionPane.ERROR_MESSAGE);
+				System.err.println("Data could not be initialized! Error: " + e.getMessage());
+				// Close the socket we created due to error
+				socket.close();
 			}
 		}
 	}
 }
 
-// ClientHandler class 
+// ClientHandler class which gets the Student number that the client sends over and queries it against
+// the MySQL database. Based on the results two things can happen:
+// 1) Exsisting Student Number: The user is allowed to connect to the Server and is seen as logged in by themselves and the Server.
+// 2) Non-Exsisting Student Number: The user is NOT allowed to connect to the Server and is seen as logged out by themselves and the Server.
+// The server will never recieve an invalid Student number as I check it is valid on the client side (> 8 characters, only an int and above or equal to 00000001 - the first student number of WIT)
+// I use the number 00000000 to use as a LOGOUT request which is used by the user once they are logged in - this number is sent over and handled wiping the fields and setting the user as logged out
+// allowing the user to log in a s a new student in the same client.
 class ClientHandler extends Thread {
-	final DataInputStream dis;
-	final DataOutputStream dos;
-	final Socket s;
+	// Creating the socket varables
+	final DataInputStream dataInputStr;
+	final DataOutputStream dataOutputStr;
+	final Socket socket;
+	// Creating and assigning values to the varibles which will be used with the MySQL database to log in and query the data. 
+	//  The names of the variables explain their purpose.
 	public final String userName = "root";
 	public final String password = "";
 	public final String serverName = "localhost";
@@ -179,11 +238,11 @@ class ClientHandler extends Thread {
 	public final String dbName = "wit";
 	public String studentTable = "students";
 
-	// Constructor
-	public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
-		this.s = s;
-		this.dis = dis;
-		this.dos = dos;
+	// Constructor for the ClientSocket class which takes in the three values needed to pass to the thread function above.
+	public ClientHandler(Socket socket, DataInputStream dataInputStr, DataOutputStream dataOutputStr) {
+		this.socket = socket;
+		this.dataInputStr = dataInputStr;
+		this.dataOutputStr = dataOutputStr;
 	}
 	
 	// Function which is used to get a connection to the database
@@ -193,37 +252,46 @@ class ClientHandler extends Thread {
 		// Setting credentials
 		connectionProps.put("user", this.userName);
 		connectionProps.put("password", this.password);
-		// Getting the connection using jdbc
+		// Getting the connection using jdbc using out varibles we created above
 		conn = DriverManager.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName
 				+ "?verifyServerCertificate=false&useSSL=true", connectionProps);
+		// return the connection object
 		return conn;
 	}
 	
+	// This function handles all the fucntions within the Server window
 	@Override
 	public void run() {
-		
+		// call our BuildGUI fucntion to build our blank window before its filled with data
 		BuildGUI panel = new BuildGUI();
+		// set the LOGOUT_CODE which is used to handle a logout request
 		int LOGOUT_CODE = 0000;
 
+		// creates the serverStatus JTextArea which shows the user of the Server who is logged in or if nobody is
 		JTextArea serverStatus = new JTextArea();
 		serverStatus.setBounds(10, 11, 370, 239);
 		serverStatus.setEditable(false);
 		serverStatus.setEditable(false);
 		panel.setServerStatus(serverStatus);
 
+		// creates the currentStudentNumber JTextArea which shows the users student number if they are logged in (set to the relavent number or N/A if they are not later on in the code below)
 		JTextArea currentStudentNumber = new JTextArea();
 		currentStudentNumber.setEditable(false);
 		currentStudentNumber.setBounds(390, 73, 284, 20);
 		panel.setCurrentStudentNumber(currentStudentNumber);
 
+		// creates the currentStudentName JTextArea which shows the users student name if they are logged in (set to the relavent name or N/A if they are not later on in the code below)
 		JTextArea currentStudentName = new JTextArea();
 		currentStudentName.setEditable(false);
 		currentStudentName.setBounds(390, 135, 284, 20);
 		panel.setCurrentStudentName(currentStudentName);
 		
 		try {
+			// Initialising the two objects needed for the database connection
 			Connection dbConnection = null;
 			Statement statement = null;
+			
+			// creating the loginStatus which will be set based on the login status of the user
 			boolean loginStatus;
 			// Get all student IDs
 			String getAllStudentIDs = "SELECT * FROM " + studentTable;
@@ -231,16 +299,21 @@ class ClientHandler extends Thread {
 			dbConnection = getConnection();
 			// Begin creation of the db statement before executing command
 			statement = dbConnection.createStatement();
+			
+			// get a list of all the ids in the db
 			ResultSet rs = statement.executeQuery(getAllStudentIDs);
+			// creat an array for the ids
 			ArrayList<String> ids = new ArrayList<String>();
+			// add the ids from the result set to the array we just created
 			while (rs.next()) {
 				ids.add(rs.getString(2));
 			}
 			while (true) {
 				// Receive radius from the client
-				int recievedStudentNum = dis.readInt();
+				int recievedStudentNum = dataInputStr.readInt();
 				
-				if (recievedStudentNum != 0) {
+				// check if the student was the LOGOUT_CODE, if not its a user logging in
+				if (recievedStudentNum != LOGOUT_CODE) {
 					String sn = Integer.toString(recievedStudentNum);
 					String getUserByStNum = "SELECT * FROM " + studentTable + " WHERE STUD_ID = " + sn;
 					ResultSet r = statement.executeQuery(getUserByStNum);
@@ -250,7 +323,7 @@ class ClientHandler extends Thread {
 						JTextArea currStudName = panel.getCurrentStudentName();
 						JTextArea currStudNum = panel.getCurrentStudentNumber();
 						loginStatus = false;
-						dos.writeBoolean(loginStatus);
+						dataOutputStr.writeBoolean(loginStatus);
 						serverStat.append("Student does NOT exsist in database, login unsucessfull" + '\n');
 						currStudName.setText("N/A");
 						currStudNum.setText("N/A");
@@ -263,6 +336,7 @@ class ClientHandler extends Thread {
 						JTextArea serverStat = panel.getServerStatus();
 						JTextArea currStudName = panel.getCurrentStudentName();
 						JTextArea currStudNum = panel.getCurrentStudentNumber();
+						serverStat.setText("");
 						serverStat.append("Student number received from client: " + recievedStudentNum + '\n');
 						// Check log in
 						if (ids.contains(sn)) {
@@ -272,8 +346,8 @@ class ClientHandler extends Thread {
 							currStudNum.setText(customerSTUDID);
 							currStudName.setText(customerNAME);
 							try {
-								dos.writeBoolean(loginStatus);
-								dos.writeUTF(customerNAME);
+								dataOutputStr.writeBoolean(loginStatus);
+								dataOutputStr.writeUTF(customerNAME);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
